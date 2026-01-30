@@ -82,8 +82,8 @@ GeoClean/ ├── index.html # Main Landing Page & Dashboard ├── auth.ht
 
 ### 🤝 The Team
 * **Aditya** - Lead Developer & Frontend Architect
-* **[Member 2 Name]** - [Role, e.g., Research & Design]
-* **[Member 3 Name]** - [Role, e.g., Documentation & QA]
+* **Likhit** - [Backend Developer & Design]
+* **Rohit** - [ Documentation & QA]
 
 ---
 
