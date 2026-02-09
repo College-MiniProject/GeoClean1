@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoClean Map - Nerul</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: hsl(222, 47%, 11%);
+      color: #F8FAFC;
+      text-align: center;
+    }
+    h2 {
+      font-family: 'Poppins', sans-serif;
+      color: #34D399;
+      margin: 20px 0;
+    }
+    #map {
+      height: 500px;
+      width: 90%;
+      max-width: 1000px;
+      margin: 0 auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+  <h2>🗺️ GeoClean Problem Areas - Nerul</h2>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialize map centered on Nerul, Navi Mumbai
+    const map = L.map('map').setView([19.0338, 73.0196], 14);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Allow users to drop pins for garbage reports
+    map.on('click', function(e) {
+      const marker = L.marker(e.latlng).addTo(map);
+      marker.bindPopup("<b>Garbage Report</b><br>Lat: " 
+        + e.latlng.lat.toFixed(4) 
+        + ", Lng: " + e.latlng.lng.toFixed(4)).openPopup();
+    });
+  </script>
+</body>
+</html>

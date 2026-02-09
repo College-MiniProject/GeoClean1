@@ -2,7 +2,7 @@
    1. GLOBAL VARIABLES & RESET
    ========================================= */
    :root {
-    --bg-dark: #0F172A;       /* Slate 900 */
+    --bg-dark: hsl(222, 47%, 11%);       /* Slate 900 */
     --primary-green: #10B981; /* Emerald 500 */
     --neon-green: #34D399;    /* Bright Green for Glows */
     --text-white: #F8FAFC;
@@ -479,3 +479,4 @@ h1 {
 .hidden {
     display: none;
 }
+
