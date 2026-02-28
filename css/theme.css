@@ -1,0 +1,14 @@
+:root {
+  --bg-dark: hsl(222, 47%, 11%); /* Slate 900 */
+  --primary-green: #10b981; /* Emerald 500 */
+  --neon-green: #34d399; /* Bright Green for Glows */
+  --text-white: #f8fafc;
+  --text-gray: #94a3b8;
+  --glass-bg: rgba(30, 41, 59, 0.7);
+
+  /* Leaderboard Colors */
+  --card-bg: #1e293b; /* Slate 800 */
+  --gold: #ffd700;
+  --silver: #c0c0c0;
+  --bronze: #cd7f32;
+}

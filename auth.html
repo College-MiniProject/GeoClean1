@@ -1,109 +1,179 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Join GeoClean | Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="auth-body">
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- <link rel="stylesheet" href="style.css" /> -->
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+  </head>
+  <body class="auth-body">
     <nav class="navbar">
-        <div class="logo">
-            <a href="index.html" style="text-decoration: none; color: white;">
-                Geo<span class="highlight">Clean</span> 🌍
-            </a>
-        </div>
+      <div class="logo">
+        <a href="index.html" style="text-decoration: none; color: white">
+          Geo<span class="highlight">Clean</span> 🌍
+        </a>
+      </div>
     </nav>
 
     <div class="auth-container">
-        <div class="glow-blob blob-1"></div>
-        <div class="glow-blob blob-2"></div>
+      <div class="glow-blob blob-1"></div>
+      <div class="glow-blob blob-2"></div>
 
-        <div class="auth-card">
-            
-            <form id="loginForm" class="auth-form">
-                <h2>Welcome Back 👋</h2>
-                <p class="auth-subtitle">Continue your mission to clean the city.</p>
+      <div class="auth-card">
+        <form id="loginForm" class="auth-form">
+          <h2>Welcome Back 👋</h2>
+          <p class="auth-subtitle">Continue your mission to clean the city.</p>
 
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" placeholder="student@college.edu" required>
-                </div>
+          <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" placeholder="student@college.edu" required />
+          </div>
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" placeholder="••••••••" required>
-                </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input type="password" placeholder="••••••••" required />
+          </div>
 
-                <div class="form-actions">
-                    <label class="checkbox-container">
-                        <input type="checkbox" checked> Remember me
-                    </label>
-                    <a href="#" class="forgot-pass">Forgot Password?</a>
-                </div>
+          <div class="form-actions">
+            <label class="checkbox-container">
+              <input type="checkbox" checked /> Remember me
+            </label>
+            <a href="#" class="forgot-pass">Forgot Password?</a>
+          </div>
 
-                <button type="submit" class="btn-primary full-width">Login to GeoClean</button>
+          <button type="submit" class="btn-primary full-width">
+            Login to GeoClean
+          </button>
 
-                <p class="switch-text">
-                    New here? <a href="#" onclick="toggleForms()">Create an Account</a>
-                </p>
-            </form>
+          <p class="switch-text">
+            New here? <a href="#" onclick="toggleForms()">Create an Account</a>
+          </p>
+        </form>
 
-            <form id="registerForm" class="auth-form hidden">
-                <h2>Join the Force 🚀</h2>
-                <p class="auth-subtitle">Start earning points and rewards today.</p>
+        <form id="registerForm" class="auth-form hidden">
+          <h2>Join the Force 🚀</h2>
+          <p class="auth-subtitle">Start earning points and rewards today.</p>
 
-                <div class="input-group">
-                    <label>Full Name</label>
-                    <input type="text" placeholder="Aditya Kumar" required>
-                </div>
+          <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" placeholder="e.g. Aditya Kumar" required />
+          </div>
 
-                <div class="input-group">
-                    <label>College Email</label>
-                    <input type="email" placeholder="student@college.edu" required>
-                </div>
+          <div class="input-group">
+            <label>College Email</label>
+            <input type="email" placeholder="student@college.edu" required />
+          </div>
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" placeholder="Create a strong password" required>
-                </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Create a strong password"
+              required
+            />
+          </div>
 
-                <div class="input-group">
-                    <label>Select Department</label>
-                    <select required>
-                        <option value="" disabled selected>Choose your dept...</option>
-                        <option value="cs">Computer Science</option>
-                        <option value="it">Information Tech</option>
-                        <option value="mech">Mechanical</option>
-                        <option value="civil">Civil</option>
-                    </select>
-                </div>
+          <div class="input-group">
+            <label>Confirm Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              placeholder="Confirm your password"
+              required
+            />
+            <small class="error-message"></small>
+          </div>
 
-                <button type="submit" class="btn-primary full-width">Create Account</button>
+          <div class="input-group">
+            <label>Select Department</label>
+            <select required>
+              <option value="" disabled selected>Choose your dept...</option>
+              <option value="cs">Computer Science</option>
+              <option value="it">Information Tech</option>
+              <option value="mech">Mechanical</option>
+              <option value="civil">Civil</option>
+            </select>
+          </div>
 
-                <p class="switch-text">
-                    Already have an account? <a href="#" onclick="toggleForms()">Login here</a>
-                </p>
-            </form>
+          <button type="submit" class="btn-primary full-width">
+            Create Account
+          </button>
 
-        </div>
+          <p class="switch-text">
+            Already have an account?
+            <a href="#" onclick="toggleForms()">Login here</a>
+          </p>
+        </form>
+      </div>
     </div>
 
     <script>
-        function toggleForms() {
-            const login = document.getElementById('loginForm');
-            const register = document.getElementById('registerForm');
-            
-            if (login.classList.contains('hidden')) {
-                login.classList.remove('hidden');
-                register.classList.add('hidden');
-            } else {
-                login.classList.add('hidden');
-                register.classList.remove('hidden');
-            }
+      // const password = document.getElementById("password");
+      // const confirmPassword = document.getElementById("confirmPassword");
+
+      // confirmPassword.addEventListener("input", function () {
+      //   if (password.value != confirmPassword.value) {
+      //     confirmPassword.classList.add("error");
+      //   } else {
+      //     confirmPassword.classList.remove("error");
+      //   }
+      // });
+
+      // document.addEventListener("DOMContentLoaded", function () {
+      //   const password = document.getElementById("password");
+      //   const confirmPassword = document.getElementById("confirmPassword");
+
+      //   confirmPassword.addEventListener("input", function () {
+      //     if (confirmPassword.value === "") {
+      //       confirmPassword.classList.remove("error");
+      //     } else if (password.value !== confirmPassword.value) {
+      //       confirmPassword.classList.add("error");
+      //       console.log("error");
+      //     } else {
+      //       confirmPassword.classList.remove("error");
+      //     }
+      //   });
+      // });
+
+      function checkPasswords() {
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+        const errorMessage = document.querySelector(".error-message");
+        if (confirmPassword.value === "") {
+          confirmPassword.classList.remove("error");
+          errorMessage.textContent = "";
+        } else if (password.value !== confirmPassword.value) {
+          confirmPassword.classList.add("error");
+          errorMessage.textContent = "Passwords do not match";
+        } else {
+          confirmPassword.classList.remove("error");
+          errorMessage.textContent = "";
         }
+      }
+      password.addEventListener("input", checkPasswords);
+      confirmPassword.addEventListener("input", checkPasswords);
+
+      function toggleForms() {
+        const login = document.getElementById("loginForm");
+        const register = document.getElementById("registerForm");
+
+        if (login.classList.contains("hidden")) {
+          login.classList.remove("hidden");
+          register.classList.add("hidden");
+        } else {
+          login.classList.add("hidden");
+          register.classList.remove("hidden");
+        }
+      }
     </script>
-</body>
+  </body>
 </html>

@@ -1,0 +1,53 @@
+body {
+  padding-top: 80px;
+}
+
+.dashboard-section {
+  margin: 40px auto;
+  width: 85%;
+  max-width: 1000px;
+}
+
+/* Crisp neon titles */
+.section-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 26px;
+  margin-bottom: 20px;
+  color: var(--neon-green);
+
+  /* Instead of blur, use a subtle underline glow */
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 3px;
+  background: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+  border-radius: 2px;
+}
+
+/* Glass-style cards */
+.card {
+  background: var(--glass-bg);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  margin-bottom: 20px;
+}
+
+.card p {
+  font-size: 18px;
+  margin: 10px 0;
+  color: var(--text-gray);
+}
+
+.highlight {
+  color: var(--primary-green);
+  font-weight: 600;
+}

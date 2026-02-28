@@ -1,56 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard | GeoClean</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style1.css">
-</head>
-<body class="dashboard-body">
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- <link rel="stylesheet" href="style1.css"> -->
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+  </head>
+  <body class="dashboard-body">
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="logo">
-            <a href="index.html" style="text-decoration: none; color: white;">
-                Geo<span class="highlight">Clean</span> 🌍
-            </a>
-        </div>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="#stats">Stats</a>
-            <a href="#map">Map</a>
-            <a href="#rewards">Rewards</a>
-        </div>
-        <a href="auth.html" class="login-btn">Logout</a>
+      <div class="logo">
+        <a href="index.html" style="text-decoration: none; color: white">
+          Geo<span class="highlight">Clean</span> 🌍
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="#stats">Stats</a>
+        <a href="#map">Map</a>
+        <a href="#rewards">Rewards</a>
+      </div>
+      <a href="auth.html" class="login-btn">Logout</a>
     </nav>
 
     <!-- Stats Section -->
     <section id="stats" class="dashboard-section">
-        <h2 class="section-title">📊 Your Stats</h2>
-        <div class="card">
-            <p>Total Reports: <span class="highlight">0</span></p>
-            <p>Cleanups Completed: <span class="highlight">0</span></p>
-            <p>Points Earned: <span class="highlight">0</span></p>
-        </div>
+      <h2 class="section-title">📊 Your Stats</h2>
+      <div class="card">
+        <p>Total Reports: <span class="highlight">0</span></p>
+        <p>Cleanups Completed: <span class="highlight">0</span></p>
+        <p>Points Earned: <span class="highlight">0</span></p>
+      </div>
     </section>
 
     <!-- Map Section -->
     <section id="map" class="dashboard-section">
-        <h2 class="section-title">🗺️ Problem Areas Map</h2>
-        <div class="card">
-            <iframe src="map.html" width="100%" height="400" style="border:none;"></iframe>
-        </div>
+      <h2 class="section-title">🗺️ Problem Areas Map</h2>
+      <div class="card">
+        <iframe
+          src="map.html"
+          width="100%"
+          height="400"
+          style="border: none"
+        ></iframe>
+      </div>
     </section>
 
     <!-- Rewards Section -->
     <section id="rewards" class="dashboard-section">
-        <h2 class="section-title">🏅 Your Rewards</h2>
-        <div class="card">
-            <p>Badges Earned: <span class="highlight">None</span></p>
-            <p>Leaderboard Rank: <span class="highlight">Unranked</span></p>
-        </div>
+      <h2 class="section-title">🏅 Your Rewards</h2>
+      <div class="card">
+        <p>Badges Earned: <span class="highlight">None</span></p>
+        <p>Leaderboard Rank: <span class="highlight">Unranked</span></p>
+      </div>
     </section>
-
-</body>
+  </body>
 </html>
