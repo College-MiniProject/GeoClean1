@@ -34,12 +34,22 @@
 
           <div class="input-group">
             <label>Email Address</label>
-            <input type="email" placeholder="student@college.edu" required />
+            <input
+              id="loginEmail"
+              type="email"
+              placeholder="student@college.edu"
+              required
+            />
           </div>
 
           <div class="input-group">
             <label>Password</label>
-            <input type="password" placeholder="••••••••" required />
+            <input
+              id="loginPassword"
+              type="password"
+              placeholder="••••••••"
+              required
+            />
           </div>
 
           <div class="form-actions">
@@ -64,12 +74,22 @@
 
           <div class="input-group">
             <label>Full Name</label>
-            <input type="text" placeholder="e.g. Aditya Kumar" required />
+            <input
+              id="fullName"
+              type="text"
+              placeholder="e.g. Aditya Kumar"
+              required
+            />
           </div>
 
           <div class="input-group">
             <label>College Email</label>
-            <input type="email" placeholder="student@college.edu" required />
+            <input
+              id="email"
+              type="email"
+              placeholder="student@college.edu"
+              required
+            />
           </div>
 
           <div class="input-group">
@@ -95,7 +115,7 @@
 
           <div class="input-group">
             <label>Select Department</label>
-            <select required>
+            <select id="department" required>
               <option value="" disabled selected>Choose your dept...</option>
               <option value="cs">Computer Science</option>
               <option value="it">Information Tech</option>
@@ -174,6 +194,63 @@
           register.classList.remove("hidden");
         }
       }
+
+      const registerForm = document.getElementById("registerForm");
+
+      registerForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const fullName = document.getElementById("fullName").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const department = document.getElementById("department").value;
+
+        fetch("http://127.0.0.1:5000/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            full_name: fullName,
+            email: email,
+            password: password,
+            department: department,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            alert(data.message || data.error);
+          });
+      });
+
+      const loginForm = document.getElementById("loginForm");
+
+      loginForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
+        fetch("http://127.0.0.1:5000/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.message === "Login successful") {
+              window.location.href = "dashboard.html";
+            } else {
+              alert(data.error);
+            }
+          });
+      });
     </script>
   </body>
 </html>
