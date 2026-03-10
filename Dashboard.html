@@ -8,14 +8,13 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- <link rel="stylesheet" href="style1.css"> -->
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/dashboard.css" />
   </head>
   <body class="dashboard-body">
-    <!-- Navbar -->
+    
     <nav class="navbar">
       <div class="logo">
         <a href="index.html" style="text-decoration: none; color: white">
@@ -24,15 +23,14 @@
       </div>
       <div class="nav-links">
         <a href="index.html">Home</a>
-        <a href="#stats">Stats</a>
-        <a href="#map">Map</a>
-        <a href="#rewards">Rewards</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="missions.html">Missions</a>
+        <a href="dashboard.html" class="active">Dashboard</a>
       </div>
-      <a href="auth.html" class="login-btn">Logout</a>
+      <a href="auth.html" id="auth-btn" class="login-btn" style="text-decoration: none">Login / Sign Up</a>
     </nav>
 
-    <!-- Stats Section -->
-    <section id="stats" class="dashboard-section">
+    <section id="stats" class="dashboard-section" style="padding-top: 100px;">
       <h2 class="section-title">📊 Your Stats</h2>
       <div class="card">
         <p>Total Reports: <span class="highlight">0</span></p>
@@ -41,7 +39,6 @@
       </div>
     </section>
 
-    <!-- Map Section -->
     <section id="map" class="dashboard-section">
       <h2 class="section-title">🗺️ Problem Areas Map</h2>
       <div class="card">
@@ -54,7 +51,6 @@
       </div>
     </section>
 
-    <!-- Rewards Section -->
     <section id="rewards" class="dashboard-section">
       <h2 class="section-title">🏅 Your Rewards</h2>
       <div class="card">
@@ -62,5 +58,37 @@
         <p>Leaderboard Rank: <span class="highlight">Unranked</span></p>
       </div>
     </section>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const authBtn = document.getElementById("auth-btn");
+        
+        // Check if a user session exists in local storage 
+        // (Depends on what your backend fetch saves during login)
+        const user = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+
+        // If either user data or a token exists, the user is logged in
+        if (user || token) {
+          
+          // Change the button text and stop it from going to the auth page
+          authBtn.textContent = "Logout";
+          authBtn.href = "#"; 
+          
+          // Add a click event to handle the actual logout process
+          authBtn.addEventListener("click", function(e) {
+            e.preventDefault(); // Prevent default link click behavior
+            
+            // Clear the saved login data from the browser
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            
+            // Redirect them back to the home page after logging out
+            window.location.href = "index.html";
+          });
+        }
+      });
+    </script>
+    
   </body>
 </html>

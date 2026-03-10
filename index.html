@@ -12,7 +12,6 @@
       rel="stylesheet"
     />
 
-    <!-- <link rel="stylesheet" href="style.css"> -->
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
@@ -23,151 +22,148 @@
       <div class="logo">Geo<span class="highlight">Clean</span> 🌍</div>
       <div class="nav-links">
         <a href="#home" class="active">Home</a>
-        <a href="#leaderboard">Leaderboard</a>
-        <a href="#missions">Missions</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="missions.html">Missions</a>
         <a href="dashboard.html">Dashboard</a>
       </div>
-      <a href="auth.html" class="login-btn" style="text-decoration: none"
-        >Login / Sign Up</a
-      >
+      <a href="auth.html" class="login-btn" style="text-decoration: none">Login / Sign Up</a>
     </nav>
 
     <section class="hero-container" id="home">
       <div class="glow-blob"></div>
-
       <div class="hero-content">
-        <span class="badge">🚀 500+ Students Active Now</span>
 
         <div class="headline-wrapper">
           <div class="slogan-slide slide-1">
-            <h1>
-              Clean Your City.<br /><span class="gradient-text"
-                >Build Your Legacy.</span
-              >
-            </h1>
+            <h1>Clean Your City.<br /><span class="gradient-text">Build Your Legacy.</span></h1>
           </div>
-
           <div class="slogan-slide slide-2">
-            <h1>
-              Spot the Waste.<br /><span class="gradient-text"
-                >Spark the Change.</span
-              >
-            </h1>
+            <h1>Spot the Waste.<br /><span class="gradient-text">Spark the Change.</span></h1>
           </div>
-
           <div class="slogan-slide slide-3">
-            <h1>
-              Report. Clean.<br /><span class="gradient-text">Celebrate.</span>
-            </h1>
+            <h1>Report. Clean.<br /><span class="gradient-text">Celebrate.</span></h1>
           </div>
-
           <div class="slogan-slide slide-4">
-            <h1>
-              Together for a<br /><span class="gradient-text"
-                >Trash-Free Tomorrow.</span
-              >
-            </h1>
+            <h1>Together for a<br /><span class="gradient-text">Trash-Free Tomorrow.</span></h1>
           </div>
-
           <div class="slogan-slide slide-5">
-            <h1>
-              Your Click Can<br /><span class="gradient-text"
-                >Clean the City.</span
-              >
-            </h1>
+            <h1>Your Click Can<br /><span class="gradient-text">Clean the City.</span></h1>
           </div>
-
           <div class="slogan-slide slide-6">
-            <h1>
-              Turn Garbage<br /><span class="gradient-text">Into Glory.</span>
-            </h1>
+            <h1>Turn Garbage<br /><span class="gradient-text">Into Glory.</span></h1>
           </div>
-
           <div class="slogan-slide slide-7">
-            <h1>
-              Be the Hero<br /><span class="gradient-text"
-                >Your City Needs.</span
-              >
-            </h1>
+            <h1>Be the Hero<br /><span class="gradient-text">Your City Needs.</span></h1>
           </div>
         </div>
+        
         <p class="hero-subtext">
           Join the tech-driven cleanliness revolution. Earn AICTE points, win
           rewards, and track your impact in real-time.
         </p>
 
         <div class="cta-buttons">
-          <button class="btn-primary">Start a Mission</button>
+          <a href="missions.html" class="btn-primary">Start a Mission</a>
           <button class="btn-secondary">Report Garbage</button>
         </div>
       </div>
     </section>
 
-    <section id="leaderboard" class="leaderboard-section">
-      <h2 class="section-title">Live Standings</h2>
+    <section class="awareness-section">
+      <div class="awareness-header">
+        <h2 class="glitch-title" data-text="THE EARTH IS NOT A TRASH CAN.">THE EARTH IS NOT A TRASH CAN.</h2>
+        <p class="awareness-subtitle">Our cities are choking on plastic. Be the generation that cures the disease.</p>
+      </div>
 
-      <div class="leaderboard-container">
-        <div class="leaderboard-header">
-          <h2>🏆 Top Scavengers</h2>
-          <p>Compete, Clean, Conquer.</p>
+      <div class="impact-grid">
+        <div class="impact-card danger-glow">
+          <div class="icon-wrapper">⚠️</div>
+          <h3 class="impact-number">62 Million</h3>
+          <p class="impact-text">Tons of waste generated annually. Less than 20% is actually treated.</p>
         </div>
+        <div class="impact-card warning-glow">
+          <div class="icon-wrapper">☠️</div>
+          <h3 class="impact-number">450 Years</h3>
+          <p class="impact-text">The time it takes for a single plastic water bottle to decompose in our soil.</p>
+        </div>
+        <div class="impact-card action-glow">
+          <div class="icon-wrapper">🌍</div>
+          <h3 class="impact-number">Your Turn</h3>
+          <p class="impact-text">Every report cleans a spot. Every cleanup earns AICTE points. Be the hero.</p>
+        </div>
+      </div>
 
-        <div class="leaderboard-list">
-          <div class="leaderboard-card top-rank gold">
-            <div class="rank-badge">1</div>
-            <div class="user-info">
-              <h3 class="user-name">Rahul Sharma 🏆</h3>
-              <span class="user-dept">CS Dept</span>
-            </div>
-            <div class="user-points">1250 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card top-rank silver">
-            <div class="rank-badge">2</div>
-            <div class="user-info">
-              <h3 class="user-name">Anjali Gupta 🥈</h3>
-              <span class="user-dept">IT Dept</span>
-            </div>
-            <div class="user-points">1100 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card top-rank bronze">
-            <div class="rank-badge">3</div>
-            <div class="user-info">
-              <h3 class="user-name">Vikram Singh 🥉</h3>
-              <span class="user-dept">Mech Dept</span>
-            </div>
-            <div class="user-points">950 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card">
-            <div class="rank-badge">4</div>
-            <div class="user-info">
-              <h3 class="user-name">Sneha Patel ⭐</h3>
-              <span class="user-dept">Civil Dept</span>
-            </div>
-            <div class="user-points">800 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card">
-            <div class="rank-badge">5</div>
-            <div class="user-info">
-              <h3 class="user-name">Amit Kumar 🚀</h3>
-              <span class="user-dept">IT Dept</span>
-            </div>
-            <div class="user-points">750 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card">
-            <div class="rank-badge">6</div>
-            <div class="user-info">
-              <h3 class="user-name">Priya Das 🌱</h3>
-              <span class="user-dept">CS Dept</span>
-            </div>
-            <div class="user-points">600 <span>pts</span></div>
-          </div>
+      <div class="crazy-marquee">
+        <div class="marquee-track">
+          <span>⚡ STOP SCROLLING. START CLEANING.</span>
+          <span>🔥 DON'T BE TRASHY, KEEP IT CLASSY.</span>
+          <span>🚀 REPORT. CLEAN. CONQUER.</span>
+          <span>🌍 YOUR CLICKS CURE THE CITY.</span>
+          <span>⚡ STOP SCROLLING. START CLEANING.</span>
+          <span>🔥 DON'T BE TRASHY, KEEP IT CLASSY.</span>
+          <span>🚀 REPORT. CLEAN. CONQUER.</span>
+          <span>🌍 YOUR CLICKS CURE THE CITY.</span>
         </div>
       </div>
     </section>
+
+    <section id="awareness" class="edu-awareness-section">
+      <div class="container">
+        <div class="section-header text-center">
+          <h2 class="section-title">Creating Awareness About Waste Management</h2>
+          <p class="section-description">
+            Proper garbage management is the backbone of a healthy, sustainable city. 
+            By understanding our impact and making small daily changes, we can reduce pollution, 
+            prevent disease, and protect our environment for future generations.
+          </p>
+        </div>
+
+        <div class="awareness-grid">
+          <div class="awareness-card">
+            <div class="card-icon">🗑️</div>
+            <h3>Reduce Waste</h3>
+            <p>Buy only what you need. Minimizing daily garbage generation is the first step to a cleaner city.</p>
+          </div>
+          <div class="awareness-card">
+            <div class="card-icon">♻️</div>
+            <h3>Segregate Waste</h3>
+            <p>Always keep dry and wet waste separate at the source to make recycling and composting easier.</p>
+          </div>
+          <div class="awareness-card">
+            <div class="card-icon">🚫</div>
+            <h3>Avoid Plastic</h3>
+            <p>Say no to single-use plastics. Switch to reusable bags, bottles, and containers today.</p>
+          </div>
+          <div class="awareness-card">
+            <div class="card-icon">🤝</div>
+            <h3>Community Action</h3>
+            <p>Take ownership of your neighborhood. Encourage others and participate in local clean drives.</p>
+          </div>
+        </div>
+
+        <div class="did-you-know-banner">
+          <div class="dyk-badge">💡 Did You Know?</div>
+          <div class="facts-container">
+            <div class="fact-item">
+              <span class="fact-highlight">62 Million</span>
+              <span>tonnes of waste is generated in India every single year.</span>
+            </div>
+            <div class="fact-item">
+              <span class="fact-highlight">Only 43%</span>
+              <span>of this generated waste is actually collected and properly treated.</span>
+            </div>
+            <div class="fact-item">
+              <span class="fact-highlight">Marine Life</span>
+              <span>is severely harmed by microplastics that wash into our oceans daily.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center cta-container">
+          <a href="missions.html" class="btn-primary pulse-btn" style="text-decoration: none; display: inline-block;">Join the Clean City Movement</a>
+        </div>
+      </div>
+    </section>
+
   </body>
 </html>
