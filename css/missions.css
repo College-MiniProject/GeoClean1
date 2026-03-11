@@ -1,0 +1,145 @@
+/* =========================================
+   MISSIONS PAGE STYLES
+   ========================================= */
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+}
+
+.missions-header-section {
+  padding: 120px 20px 40px; 
+  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+  text-align: center; /* FORCES ALIGNMENT TO CENTER */
+}
+
+.page-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0 auto 15px auto; /* Enforces centering */
+  text-align: center; 
+}
+
+.gradient-text {
+  color: var(--neon-green); 
+}
+
+.page-subtitle {
+  color: var(--text-gray);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto 30px auto;
+}
+
+.mission-filters {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-gray);
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--primary-green);
+  color: var(--neon-green);
+}
+
+.missions-content { padding: 20px 20px 80px; }
+
+.missions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mission-card {
+  background: #1e293b; 
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mission-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.mission-image { height: 140px; position: relative; }
+
+.urgency-badge {
+  position: absolute; top: 15px; right: 15px;
+  padding: 5px 12px; border-radius: 8px;
+  font-size: 0.8rem; font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+}
+
+.urgency-badge.critical { background: #ff0055; color: white; }
+.urgency-badge.warning { background: #ffaa00; color: #000; }
+
+.mission-body { padding: 25px; display: flex; flex-direction: column; flex-grow: 1; }
+.mission-body h3 { 
+  font-size: 1.3rem; 
+  margin: 0 0 5px 0; 
+  color: var(--text-white); 
+  font-family: 'Poppins', sans-serif;
+}
+
+.mission-location { color: var(--neon-green); font-size: 0.9rem; font-weight: 600; margin: 0 0 15px 0; }
+.mission-desc { color: var(--text-gray); font-size: 0.95rem; line-height: 1.5; margin: 0 0 20px 0; flex-grow: 1; }
+
+.mission-stats {
+  display: flex; justify-content: space-between;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px; padding: 12px; margin-bottom: 20px;
+}
+
+.stat { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;}
+.w-100 { width: 100%; }
+
+/* =========================================
+   NEW SLEEK BUTTON STYLES
+   ========================================= */
+.btn-mission {
+  background: var(--primary-green);
+  color: #0b1120; /* Dark text for contrast against neon */
+  border: none;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.btn-mission:hover {
+  background: var(--neon-green);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+@media (max-width: 768px) {
+  .page-title { font-size: 2.5rem; }
+  .missions-header-section { padding-top: 100px; }
+  .missions-grid { grid-template-columns: 1fr; }
+}
