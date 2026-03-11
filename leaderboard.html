@@ -15,9 +15,9 @@
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
-    <link rel="stylesheet" href="css/index.css" /> 
+    <link rel="stylesheet" href="css/leaderboard.css" />
   </head>
-  <body class="dashboard-body">
+  <body>
     <nav class="navbar">
       <div class="logo">
         <a href="index.html" style="text-decoration: none; color: white">
@@ -27,18 +27,16 @@
       <div class="nav-links">
         <a href="index.html">Home</a>
         <a href="leaderboard.html" class="active">Leaderboard</a>
-        <a href="index.html#missions">Missions</a>
+        <a href="missions.html">Missions</a>
         <a href="dashboard.html">Dashboard</a>
       </div>
-      <a href="auth.html" class="login-btn" style="text-decoration: none"
+      <a href="auth.html" id="auth-btn" class="login-btn" style="text-decoration: none"
         >Login / Sign Up</a
       >
     </nav>
 
-    <section id="leaderboard" class="leaderboard-section" style="padding-top: 100px;">
-      <h2 class="section-title" style="text-align: center;">Live Standings</h2>
-
-      <div class="leaderboard-container" style="margin: 0 auto; max-width: 800px;">
+    <section id="leaderboard" class="leaderboard-section">
+      <div class="leaderboard-container">
         <div class="leaderboard-header">
           <h2>🏆 Top Scavengers</h2>
           <p>Compete, Clean, Conquer.</p>
@@ -101,5 +99,32 @@
         </div>
       </div>
     </section>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const authBtn = document.getElementById("auth-btn");
+       
+        // Check if a user session exists in local storage
+        const user = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+
+        if (user || token) {
+          // Change button to Logout
+          authBtn.textContent = "Logout";
+          authBtn.href = "#";
+         
+          // Add click event to log the user out
+          authBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            // Clear the saved login data
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+           
+            // Send them back to the home page
+            window.location.href = "index.html";
+          });
+        }
+      });
+    </script>
   </body>
 </html>

@@ -1,0 +1,150 @@
+/* =========================================
+   LEADERBOARD STYLES
+   ========================================= */
+
+.leaderboard-section {
+  padding: 120px 20px 80px; /* Space for fixed navbar at the top */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-dark); /* Ensure background matches theme */
+}
+
+.leaderboard-container {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.leaderboard-header {
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 20px;
+}
+
+.leaderboard-header h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  color: var(--neon-green);
+  margin: 0 0 10px 0;
+}
+
+.leaderboard-header p {
+  color: var(--text-gray);
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Individual User Cards */
+.leaderboard-card {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6); /* Slightly darker slate for contrast */
+  border-radius: 12px;
+  padding: 15px 25px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 4px solid transparent; /* Default no border */
+}
+
+.leaderboard-card:hover {
+  transform: translateX(8px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.rank-badge {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-right: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.user-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  margin: 0 0 5px 0;
+  font-size: 1.2rem;
+  color: var(--text-white);
+  font-family: 'Poppins', sans-serif;
+}
+
+.user-dept {
+  font-size: 0.85rem;
+  color: var(--text-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.user-points {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--neon-green);
+  font-family: 'Poppins', sans-serif;
+}
+
+.user-points span {
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  font-weight: 500;
+}
+
+/* --- Top 3 Styling Highlights --- */
+.top-rank.gold {
+  border-left-color: var(--gold);
+}
+.top-rank.gold .rank-badge {
+  background: var(--gold);
+  color: #000;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.top-rank.silver {
+  border-left-color: var(--silver);
+}
+.top-rank.silver .rank-badge {
+  background: var(--silver);
+  color: #000;
+  box-shadow: 0 0 15px rgba(192, 192, 192, 0.4);
+}
+
+.top-rank.bronze {
+  border-left-color: var(--bronze);
+}
+.top-rank.bronze .rank-badge {
+  background: var(--bronze);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.4);
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 600px) {
+  .leaderboard-container { padding: 20px; }
+  .leaderboard-card { padding: 15px; }
+  .rank-badge { width: 35px; height: 35px; font-size: 1rem; margin-right: 15px; }
+  .user-name { font-size: 1.1rem; }
+  .user-points { font-size: 1.2rem; }
+}
