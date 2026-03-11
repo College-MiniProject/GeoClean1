@@ -3,18 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Dashboard | GeoClean</title>
+    <title>Smart City Data Command | GeoClean</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
-    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/dashboard-sleek.css" /> 
   </head>
   <body class="dashboard-body">
-    <nav class="navbar">
+    
+    <nav class="navbar navbar-sleek">
       <div class="logo">
         <a href="index.html" style="text-decoration: none; color: white">
           Geo<span class="highlight">Clean</span> 🌍
@@ -26,75 +27,184 @@
         <a href="missions.html">Missions</a>
         <a href="dashboard.html" class="active">Dashboard</a>
       </div>
-      <a id="auth-btn" class="login-btn"></a>
+      <div class="header-actions">
+        <div class="user-profile-head hidden" id="user-profile-head">
+          <div class="avatar-circle" style="display: flex; justify-content: center; align-items: center; background: rgba(16,185,129,0.2); font-size: 1.2rem; border: 2px solid var(--neon-green);">🧑‍💻</div>
+          <span class="user-name-text">Welcome, User</span>
+        </div>
+        <a href="auth.html" id="auth-btn" class="login-btn-sleek" style="text-decoration: none">Login</a>
+      </div>
     </nav>
 
-    <section id="stats" class="dashboard-section" style="padding-top: 100px">
-      <h2 class="section-title">📊 Your Stats</h2>
-      <div class="card">
-        <p>Total Reports: <span class="highlight">0</span></p>
-        <p>Cleanups Completed: <span class="highlight">0</span></p>
-        <p>Points Earned: <span class="highlight">0</span></p>
+    <div class="ticker-sleek" style="margin-top: 80px;">
+      <div class="ticker-move-sleek">
+        <span class="ticker-item-sleek"><b class="critical">⚠️ CRITICAL:</b> Sector 15 Dumping Ground unresolved (7d). 500 Bonus GeoCoins for cleanup.</span>
+        <span class="ticker-item-sleek"><b class="warning">⚠️ WARNING:</b> High plastic density detected near Seawoods Lake.</span>
+        <span class="ticker-item-sleek"><b class="resolved">✅ RESOLVED:</b> Nerul Station West cleared by Team Alpha.</span>
+        <span class="ticker-item-sleek"><b class="critical">⚠️ CRITICAL:</b> Sector 15 Dumping Ground unresolved (7d). 500 Bonus GeoCoins for cleanup.</span>
       </div>
-    </section>
+    </div>
 
-    <section id="map" class="dashboard-section">
-      <h2 class="section-title">🗺️ Problem Areas Map</h2>
-      <div class="card">
-        <iframe
-          src="map.html"
-          width="100%"
-          height="400"
-          style="border: none"
-        ></iframe>
+    <div class="dashboard-sleek-main-container">
+      <div class="dashboard-grid-sleek">
+        
+        <div class="dashboard-column-sleek left-column">
+          <section id="stats" class="stats-section-sleek">
+            <h2 class="section-title-sleek">📊 Your Smart City Impact</h2>
+            <div class="impact-grid-sleek">
+              <div class="impact-card-sleek">
+                <div class="icon-glow-sleek">🗑️</div>
+                <div class="stat-content">
+                  <h3>12 kg</h3>
+                  <p>Plastic Diverted</p>
+                </div>
+              </div>
+              <div class="impact-card-sleek">
+                <div class="icon-glow-sleek">💧</div>
+                <div class="stat-content">
+                  <h3>45 L</h3>
+                  <p>Runoff Prevented</p>
+                </div>
+              </div>
+              <div class="impact-card-sleek">
+                <div class="icon-glow-sleek">☁️</div>
+                <div class="stat-content">
+                  <h3>8 kg</h3>
+                  <p>CO₂ Offset</p>
+                </div>
+              </div>
+              <div class="impact-card-sleek coins-card-sleek">
+                <div class="icon-glow-sleek">🪙</div>
+                <div class="stat-content">
+                  <h3 style="color: var(--neon-green)">350</h3>
+                  <p>Total GeoCoins</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <section class="disposal-section-sleek">
+            <h2 class="section-title-sleek">🔍 Smart Disposal Search</h2>
+            <p class="section-desc-sleek">How do I dispose of...</p>
+            <div class="search-box-sleek">
+              <input type="text" id="disposal-search" placeholder="e.g., Batteries, Syringes..." />
+              <button class="btn-search-sleek search-btn-sleek">Find Method</button>
+            </div>
+            <div id="search-result" class="search-result-box-sleek hidden"></div>
+          </section>
+        </div>
+        
+        <div class="dashboard-column-sleek right-column">
+          <section id="map" class="map-section-sleek">
+            <h2 class="section-title-sleek">🗺️ Ward Health & Active Reports</h2>
+            <div class="map-placeholder-sleek">
+              <div class="ward-health-legend">
+                <div class="legend-item"><span class="grade grade-A">A</span> Excellent (Sector 17)</div>
+                <div class="legend-item"><span class="grade grade-F">F</span> Critical (Sector 15)</div>
+              </div>
+              <iframe src="map.html" width="100%" height="450" style="border: none; border-radius: 12px; backdrop-filter: blur(5px);"></iframe>
+            </div>
+          </section>
+          
+          <section id="tracker" class="tracker-section-sleek">
+            <h2 class="section-title-sleek">⏳ Report Lifecycle Tracker</h2>
+            <p class="section-desc-sleek">Tracking latest report: <strong>#REP-4092 (Sector 20, Nerul)</strong></p>
+            <div class="timeline-container-sleek">
+              <div class="timeline-sleek">
+                <div class="timeline-item-sleek completed">
+                  <div class="timeline-icon-sleek">✅</div>
+                  <div class="timeline-content-sleek">
+                    <h4>Report Submitted</h4>
+                    <p>Photo & GPS data logged. (Oct 24, 10:00 AM)</p>
+                  </div>
+                </div>
+                <div class="timeline-item-sleek completed">
+                  <div class="timeline-icon-sleek">👀</div>
+                  <div class="timeline-content-sleek">
+                    <h4>Community Verified</h4>
+                    <p>Checked by 3 users. Spam filter passed. (Oct 24, 11:30 AM)</p>
+                  </div>
+                </div>
+                <div class="timeline-item-sleek active">
+                  <div class="timeline-icon-sleek">🧹</div>
+                  <div class="timeline-content-sleek">
+                    <h4>Assigned to Action</h4>
+                    <p>Mission created & flagged to NMMC Ward Officer. (In Progress)</p>
+                  </div>
+                </div>
+                <div class="timeline-item-sleek pending">
+                  <div class="timeline-icon-sleek">✨</div>
+                  <div class="timeline-content-sleek">
+                    <h4>Resolved</h4>
+                    <p>Pending before/after photo proof.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+        
       </div>
-    </section>
-
-    <section id="rewards" class="dashboard-section">
-      <h2 class="section-title">🏅 Your Rewards</h2>
-      <div class="card">
-        <p>Badges Earned: <span class="highlight">None</span></p>
-        <p>Leaderboard Rank: <span class="highlight">Unranked</span></p>
-      </div>
-    </section>
+    </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener("DOMContentLoaded", function() {
+        // --- Login/Logout and Profile Logic ---
         const authBtn = document.getElementById("auth-btn");
-
-        // Check if a user session exists in local storage
-        // (Depends on what your backend fetch saves during login)
+        const profileHead = document.getElementById("user-profile-head");
         const user = localStorage.getItem("user");
         const token = localStorage.getItem("token");
 
-        // If either user data or a token exists, the user is logged in
         if (user || token) {
-          // Change the button text and stop it from going to the auth page
           authBtn.textContent = "Logout";
-          authBtn.href = "#";
-
-          // Add a click event to handle the actual logout process
-          authBtn.addEventListener("click", function (e) {
-            e.preventDefault(); // Prevent default link click behavior
-
-            // Clear the saved login data from the browser
+          authBtn.href = "#"; 
+          if(user) {
+            try {
+              const userData = JSON.parse(user);
+              if(userData.full_name) {
+                profileHead.querySelector('.user-name-text').textContent = "Welcome, " + userData.full_name;
+              }
+            } catch (e) {
+              console.error("Could not parse user data");
+            }
+          }
+          profileHead.classList.remove('hidden');
+          
+          authBtn.addEventListener("click", function(e) {
+            e.preventDefault();
             localStorage.removeItem("user");
             localStorage.removeItem("token");
-
-            // Redirect them back to the home page after logging out
             window.location.href = "index.html";
           });
         }
-      });
-      // protect dashboard page
-      document.addEventListener("DOMContentLoaded", function () {
-        const user = localStorage.getItem("user");
 
-        if (!user) {
-          // user not logged in
-          alert("Please login first");
-          window.location.href = "auth.html";
-        }
+        // --- Smart Disposal Logic ---
+        const searchBtn = document.querySelector('.search-btn-sleek');
+        const searchInput = document.getElementById('disposal-search');
+        const searchResult = document.getElementById('search-result');
+
+        searchBtn.addEventListener('click', () => {
+          const query = searchInput.value.toLowerCase();
+          searchResult.classList.remove('hidden');
+          
+          if(query.includes('battery') || query.includes('e-waste')) {
+            searchResult.innerHTML = "<strong>🛑 E-Waste Hazard:</strong> Batteries leak toxic acid. Nearest drop-off: Navi Mumbai E-Waste Center, Sector 11.";
+            searchResult.style.borderLeftColor = "#ffaa00";
+            searchResult.style.color = "#ffaa00";
+          } else if (query.includes('syringe') || query.includes('medical')) {
+            searchResult.innerHTML = "<strong>☠️ Bio-Hazard:</strong> MUST be sealed in puncture-proof container and given to registered biomedical waste collectors.";
+            searchResult.style.borderLeftColor = "#ff0055";
+            searchResult.style.color = "#ff0055";
+          } else if (query === "") {
+             searchResult.innerHTML = "Enter an item to search.";
+             searchResult.style.borderLeftColor = "var(--text-gray)";
+             searchResult.style.color = "var(--text-gray)";
+          } else {
+            searchResult.innerHTML = "<strong>♻️ General Waste:</strong> Ensure item is clean/dry. Separate into DRY WASTE (Blue) bin for NMMC collection.";
+            searchResult.style.borderLeftColor = "var(--primary-green)";
+            searchResult.style.color = "var(--text-gray)";
+          }
+        });
       });
     </script>
   </body>
