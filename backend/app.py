@@ -1,3 +1,4 @@
+import webbrowser
 from dotenv import load_dotenv
 import os
 from flask import Flask, request, jsonify
@@ -81,4 +82,5 @@ def login():
         return jsonify({"error": "Invalid password"}), 401
 
 if __name__ == "__main__":
+    webbrowser.open("http://127.0.0.1:5500/index.html")
     app.run(debug=True)

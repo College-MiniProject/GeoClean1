@@ -245,6 +245,9 @@
           .then((res) => res.json())
           .then((data) => {
             if (data.message === "Login successful") {
+              // save login state
+              localStorage.setItem("user", email);
+
               window.location.href = "dashboard.html";
             } else {
               alert(data.error);

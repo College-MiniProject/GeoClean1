@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="css/dashboard.css" />
   </head>
   <body class="dashboard-body">
-    
     <nav class="navbar">
       <div class="logo">
         <a href="index.html" style="text-decoration: none; color: white">
@@ -27,10 +26,10 @@
         <a href="missions.html">Missions</a>
         <a href="dashboard.html" class="active">Dashboard</a>
       </div>
-      <a href="auth.html" id="auth-btn" class="login-btn" style="text-decoration: none">Login / Sign Up</a>
+      <a id="auth-btn" class="login-btn"></a>
     </nav>
 
-    <section id="stats" class="dashboard-section" style="padding-top: 100px;">
+    <section id="stats" class="dashboard-section" style="padding-top: 100px">
       <h2 class="section-title">📊 Your Stats</h2>
       <div class="card">
         <p>Total Reports: <span class="highlight">0</span></p>
@@ -60,35 +59,43 @@
     </section>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function() {
+      document.addEventListener("DOMContentLoaded", function () {
         const authBtn = document.getElementById("auth-btn");
-        
-        // Check if a user session exists in local storage 
+
+        // Check if a user session exists in local storage
         // (Depends on what your backend fetch saves during login)
         const user = localStorage.getItem("user");
         const token = localStorage.getItem("token");
 
         // If either user data or a token exists, the user is logged in
         if (user || token) {
-          
           // Change the button text and stop it from going to the auth page
           authBtn.textContent = "Logout";
-          authBtn.href = "#"; 
-          
+          authBtn.href = "#";
+
           // Add a click event to handle the actual logout process
-          authBtn.addEventListener("click", function(e) {
+          authBtn.addEventListener("click", function (e) {
             e.preventDefault(); // Prevent default link click behavior
-            
+
             // Clear the saved login data from the browser
             localStorage.removeItem("user");
             localStorage.removeItem("token");
-            
+
             // Redirect them back to the home page after logging out
             window.location.href = "index.html";
           });
         }
       });
+      // protect dashboard page
+      document.addEventListener("DOMContentLoaded", function () {
+        const user = localStorage.getItem("user");
+
+        if (!user) {
+          // user not logged in
+          alert("Please login first");
+          window.location.href = "auth.html";
+        }
+      });
     </script>
-    
   </body>
 </html>
