@@ -1,6 +1,7 @@
 import webbrowser
 from dotenv import load_dotenv
 import os
+import webbrowser
 from flask import Flask, request, jsonify
 import psycopg2
 import bcrypt
@@ -83,4 +84,4 @@ def login():
 
 if __name__ == "__main__":
     webbrowser.open("http://127.0.0.1:5500/index.html")
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

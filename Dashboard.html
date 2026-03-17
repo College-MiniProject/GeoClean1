@@ -11,10 +11,9 @@
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
-    <link rel="stylesheet" href="css/dashboard-sleek.css" /> 
+    <link rel="stylesheet" href="css/dashboard-sleek.css" />
   </head>
   <body class="dashboard-body">
-    
     <nav class="navbar navbar-sleek">
       <div class="logo">
         <a href="index.html" style="text-decoration: none; color: white">
@@ -25,29 +24,58 @@
         <a href="index.html">Home</a>
         <a href="leaderboard.html">Leaderboard</a>
         <a href="missions.html">Missions</a>
-        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="#" id="dashboard-link">Dashboard</a>
       </div>
       <div class="header-actions">
         <div class="user-profile-head hidden" id="user-profile-head">
-          <div class="avatar-circle" style="display: flex; justify-content: center; align-items: center; background: rgba(16,185,129,0.2); font-size: 1.2rem; border: 2px solid var(--neon-green);">🧑‍💻</div>
+          <div
+            class="avatar-circle"
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              background: rgba(16, 185, 129, 0.2);
+              font-size: 1.2rem;
+              border: 2px solid var(--neon-green);
+            "
+          >
+            🧑‍💻
+          </div>
           <span class="user-name-text">Welcome, User</span>
         </div>
-        <a href="auth.html" id="auth-btn" class="login-btn-sleek" style="text-decoration: none">Login</a>
+        <a
+          href="auth.html"
+          id="auth-btn"
+          class="login-btn-sleek"
+          style="text-decoration: none"
+          >Login</a
+        >
       </div>
     </nav>
 
-    <div class="ticker-sleek" style="margin-top: 80px;">
+    <div class="ticker-sleek" style="margin-top: 80px">
       <div class="ticker-move-sleek">
-        <span class="ticker-item-sleek"><b class="critical">⚠️ CRITICAL:</b> Sector 15 Dumping Ground unresolved (7d). 500 Bonus GeoCoins for cleanup.</span>
-        <span class="ticker-item-sleek"><b class="warning">⚠️ WARNING:</b> High plastic density detected near Seawoods Lake.</span>
-        <span class="ticker-item-sleek"><b class="resolved">✅ RESOLVED:</b> Nerul Station West cleared by Team Alpha.</span>
-        <span class="ticker-item-sleek"><b class="critical">⚠️ CRITICAL:</b> Sector 15 Dumping Ground unresolved (7d). 500 Bonus GeoCoins for cleanup.</span>
+        <span class="ticker-item-sleek"
+          ><b class="critical">⚠️ CRITICAL:</b> Sector 15 Dumping Ground
+          unresolved (7d). 500 Bonus GeoCoins for cleanup.</span
+        >
+        <span class="ticker-item-sleek"
+          ><b class="warning">⚠️ WARNING:</b> High plastic density detected near
+          Seawoods Lake.</span
+        >
+        <span class="ticker-item-sleek"
+          ><b class="resolved">✅ RESOLVED:</b> Nerul Station West cleared by
+          Team Alpha.</span
+        >
+        <span class="ticker-item-sleek"
+          ><b class="critical">⚠️ CRITICAL:</b> Sector 15 Dumping Ground
+          unresolved (7d). 500 Bonus GeoCoins for cleanup.</span
+        >
       </div>
     </div>
 
     <div class="dashboard-sleek-main-container">
       <div class="dashboard-grid-sleek">
-        
         <div class="dashboard-column-sleek left-column">
           <section id="stats" class="stats-section-sleek">
             <h2 class="section-title-sleek">📊 Your Smart City Impact</h2>
@@ -82,41 +110,66 @@
               </div>
             </div>
           </section>
-          
+
           <section class="disposal-section-sleek">
             <h2 class="section-title-sleek">🔍 Smart Disposal Search</h2>
             <p class="section-desc-sleek">How do I dispose of...</p>
             <div class="search-box-sleek">
-              <input type="text" id="disposal-search" placeholder="e.g., Batteries, Syringes..." />
-              <button class="btn-search-sleek search-btn-sleek">Find Method</button>
+              <input
+                type="text"
+                id="disposal-search"
+                placeholder="e.g., Batteries, Syringes..."
+              />
+              <button class="btn-search-sleek search-btn-sleek">
+                Find Method
+              </button>
             </div>
-            <div id="search-result" class="search-result-box-sleek hidden"></div>
+            <div
+              id="search-result"
+              class="search-result-box-sleek hidden"
+            ></div>
           </section>
         </div>
-        
+
         <div class="dashboard-column-sleek right-column">
           <section id="map" class="map-section-sleek">
             <h2 class="section-title-sleek">🗺️ Ward Health & Active Reports</h2>
             <div class="map-placeholder-sleek">
-              
               <div class="ward-health-legend-sleek">
                 <div class="legend-pill">
                   <span class="grade-badge grade-a">A</span>
-                  <span class="legend-text">Sector 17 <span class="status-good">Excellent</span></span>
+                  <span class="legend-text"
+                    >Sector 17 <span class="status-good">Excellent</span></span
+                  >
                 </div>
                 <div class="legend-pill">
                   <span class="grade-badge grade-f">F</span>
-                  <span class="legend-text">Sector 15 <span class="status-critical">Critical</span></span>
+                  <span class="legend-text"
+                    >Sector 15
+                    <span class="status-critical">Critical</span></span
+                  >
                 </div>
               </div>
 
-              <iframe src="map.html" width="100%" height="450" style="border: none; border-radius: 12px; backdrop-filter: blur(5px);"></iframe>
+              <iframe
+                src="map.html"
+                width="100%"
+                height="450"
+                style="
+                  border: none;
+                  border-radius: 12px;
+                  backdrop-filter: blur(5px);
+                "
+              ></iframe>
             </div>
           </section>
-          
+
           <section id="tracker" class="tracker-section-sleek">
             <h2 class="section-title-sleek">⏳ Report Lifecycle Tracker</h2>
-            <p class="section-desc-sleek">Tracking latest report: <strong>#REP-4092 (Sector 20, Nerul)</strong></p>
+            <p class="section-desc-sleek">
+              Tracking latest report:
+              <strong>#REP-4092 (Sector 20, Nerul)</strong>
+            </p>
             <div class="timeline-container-sleek">
               <div class="timeline-sleek">
                 <div class="timeline-item-sleek completed">
@@ -130,14 +183,19 @@
                   <div class="timeline-icon-sleek">👀</div>
                   <div class="timeline-content-sleek">
                     <h4>Community Verified</h4>
-                    <p>Checked by 3 users. Spam filter passed. (Oct 24, 11:30 AM)</p>
+                    <p>
+                      Checked by 3 users. Spam filter passed. (Oct 24, 11:30 AM)
+                    </p>
                   </div>
                 </div>
                 <div class="timeline-item-sleek active">
                   <div class="timeline-icon-sleek">🧹</div>
                   <div class="timeline-content-sleek">
                     <h4>Assigned to Action</h4>
-                    <p>Mission created & flagged to NMMC Ward Officer. (In Progress)</p>
+                    <p>
+                      Mission created & flagged to NMMC Ward Officer. (In
+                      Progress)
+                    </p>
                   </div>
                 </div>
                 <div class="timeline-item-sleek pending">
@@ -151,12 +209,30 @@
             </div>
           </section>
         </div>
-        
       </div>
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function() {
+      const dashboardLink = document.getElementById("dashboard-link");
+
+      dashboardLink.addEventListener("click", function (e) {
+        const user = localStorage.getItem("user");
+
+        if (!user) {
+          e.preventDefault();
+          alert("Please login to access dashboard");
+          window.location.href = "auth.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
+      });
+      const user = localStorage.getItem("user");
+
+      if (!user) {
+        window.location.href = "auth.html";
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
         // --- Login/Logout and Profile Logic ---
         const authBtn = document.getElementById("auth-btn");
         const profileHead = document.getElementById("user-profile-head");
@@ -165,20 +241,21 @@
 
         if (user || token) {
           authBtn.textContent = "Logout";
-          authBtn.href = "#"; 
-          if(user) {
+          authBtn.href = "#";
+          if (user) {
             try {
               const userData = JSON.parse(user);
-              if(userData.full_name) {
-                profileHead.querySelector('.user-name-text').textContent = "Welcome, " + userData.full_name;
+              if (userData.full_name) {
+                profileHead.querySelector(".user-name-text").textContent =
+                  "Welcome, " + userData.full_name;
               }
             } catch (e) {
               console.error("Could not parse user data");
             }
           }
-          profileHead.classList.remove('hidden');
-          
-          authBtn.addEventListener("click", function(e) {
+          profileHead.classList.remove("hidden");
+
+          authBtn.addEventListener("click", function (e) {
             e.preventDefault();
             localStorage.removeItem("user");
             localStorage.removeItem("token");
@@ -187,28 +264,31 @@
         }
 
         // --- Smart Disposal Logic ---
-        const searchBtn = document.querySelector('.search-btn-sleek');
-        const searchInput = document.getElementById('disposal-search');
-        const searchResult = document.getElementById('search-result');
+        const searchBtn = document.querySelector(".search-btn-sleek");
+        const searchInput = document.getElementById("disposal-search");
+        const searchResult = document.getElementById("search-result");
 
-        searchBtn.addEventListener('click', () => {
+        searchBtn.addEventListener("click", () => {
           const query = searchInput.value.toLowerCase();
-          searchResult.classList.remove('hidden');
-          
-          if(query.includes('battery') || query.includes('e-waste')) {
-            searchResult.innerHTML = "<strong>🛑 E-Waste Hazard:</strong> Batteries leak toxic acid. Nearest drop-off: Navi Mumbai E-Waste Center, Sector 11.";
+          searchResult.classList.remove("hidden");
+
+          if (query.includes("battery") || query.includes("e-waste")) {
+            searchResult.innerHTML =
+              "<strong>🛑 E-Waste Hazard:</strong> Batteries leak toxic acid. Nearest drop-off: Navi Mumbai E-Waste Center, Sector 11.";
             searchResult.style.borderLeftColor = "#ffaa00";
             searchResult.style.color = "#ffaa00";
-          } else if (query.includes('syringe') || query.includes('medical')) {
-            searchResult.innerHTML = "<strong>☠️ Bio-Hazard:</strong> MUST be sealed in puncture-proof container and given to registered biomedical waste collectors.";
+          } else if (query.includes("syringe") || query.includes("medical")) {
+            searchResult.innerHTML =
+              "<strong>☠️ Bio-Hazard:</strong> MUST be sealed in puncture-proof container and given to registered biomedical waste collectors.";
             searchResult.style.borderLeftColor = "#ff0055";
             searchResult.style.color = "#ff0055";
           } else if (query === "") {
-             searchResult.innerHTML = "Enter an item to search.";
-             searchResult.style.borderLeftColor = "var(--text-gray)";
-             searchResult.style.color = "var(--text-gray)";
+            searchResult.innerHTML = "Enter an item to search.";
+            searchResult.style.borderLeftColor = "var(--text-gray)";
+            searchResult.style.color = "var(--text-gray)";
           } else {
-            searchResult.innerHTML = "<strong>♻️ General Waste:</strong> Ensure item is clean/dry. Separate into DRY WASTE (Blue) bin for NMMC collection.";
+            searchResult.innerHTML =
+              "<strong>♻️ General Waste:</strong> Ensure item is clean/dry. Separate into DRY WASTE (Blue) bin for NMMC collection.";
             searchResult.style.borderLeftColor = "var(--primary-green)";
             searchResult.style.color = "var(--text-gray)";
           }

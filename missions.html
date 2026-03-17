@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
-    <link rel="stylesheet" href="css/missions.css" /> 
+    <link rel="stylesheet" href="css/missions.css" />
   </head>
   <body>
     <nav class="navbar">
@@ -28,18 +28,27 @@
         <a href="index.html">Home</a>
         <a href="leaderboard.html">Leaderboard</a>
         <a href="missions.html" class="active">Missions</a>
-        <a href="dashboard.html">Dashboard</a>
+        <a href="#" id="dashboard-link">Dashboard</a>
       </div>
-      <a href="auth.html" id="auth-btn" class="login-btn" style="text-decoration: none"
+      <a
+        href="auth.html"
+        id="auth-btn"
+        class="login-btn"
+        style="text-decoration: none"
         >Login / Sign Up</a
       >
     </nav>
 
     <section class="missions-header-section">
       <div class="container text-center">
-        <h1 class="page-title">Active <span class="gradient-text">Missions</span></h1>
-        <p class="page-subtitle">Accept a challenge, clean the location, upload proof, and earn your GeoCoins.</p>
-        
+        <h1 class="page-title">
+          Active <span class="gradient-text">Missions</span>
+        </h1>
+        <p class="page-subtitle">
+          Accept a challenge, clean the location, upload proof, and earn your
+          GeoCoins.
+        </p>
+
         <div class="mission-filters">
           <button class="filter-btn active">All</button>
           <button class="filter-btn">High Reward</button>
@@ -51,91 +60,128 @@
     <section class="missions-content">
       <div class="container">
         <div class="missions-grid">
-          
           <div class="mission-card">
-            <div class="mission-image" style="background: linear-gradient(135deg, #10b981, #0ea5e9);">
+            <div
+              class="mission-image"
+              style="background: linear-gradient(135deg, #10b981, #0ea5e9)"
+            >
               <span class="urgency-badge critical">🔥 High Priority</span>
             </div>
             <div class="mission-body">
               <h3>Nerul Station West Cleanup</h3>
               <p class="mission-location">📍 Sector 20, Nerul</p>
-              <p class="mission-desc">Heavy plastic waste reported near the west side auto stand. Needs immediate attention.</p>
-              
+              <p class="mission-desc">
+                Heavy plastic waste reported near the west side auto stand.
+                Needs immediate attention.
+              </p>
+
               <div class="mission-stats">
-                <div class="stat"><span class="icon">🏆</span> 150 GeoCoins</div>
+                <div class="stat">
+                  <span class="icon">🏆</span> 150 GeoCoins
+                </div>
                 <div class="stat"><span class="icon">⚡</span> Hard</div>
               </div>
-              
+
               <button class="btn-mission w-100">Accept Mission</button>
             </div>
           </div>
 
           <div class="mission-card">
-            <div class="mission-image" style="background: linear-gradient(135deg, #8b5cf6, #d946ef);">
-            </div>
+            <div
+              class="mission-image"
+              style="background: linear-gradient(135deg, #8b5cf6, #d946ef)"
+            ></div>
             <div class="mission-body">
               <h3>Seawoods Lake Plastic Drive</h3>
               <p class="mission-location">📍 Seawoods Estate</p>
-              <p class="mission-desc">Collect discarded bottles and wrappers along the walking path of the lake.</p>
-              
+              <p class="mission-desc">
+                Collect discarded bottles and wrappers along the walking path of
+                the lake.
+              </p>
+
               <div class="mission-stats">
                 <div class="stat"><span class="icon">🏆</span> 75 GeoCoins</div>
                 <div class="stat"><span class="icon">⚡</span> Easy</div>
               </div>
-              
+
               <button class="btn-mission w-100">Accept Mission</button>
             </div>
           </div>
 
           <div class="mission-card">
-            <div class="mission-image" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+            <div
+              class="mission-image"
+              style="background: linear-gradient(135deg, #f59e0b, #ef4444)"
+            >
               <span class="urgency-badge warning">⚠️ Community Goal</span>
             </div>
             <div class="mission-body">
               <h3>Kharghar Hills Trek & Trash</h3>
               <p class="mission-location">📍 Kharghar Hills</p>
-              <p class="mission-desc">Join 10 other students this weekend to clear the hiking trails of tourist waste.</p>
-              
+              <p class="mission-desc">
+                Join 10 other students this weekend to clear the hiking trails
+                of tourist waste.
+              </p>
+
               <div class="mission-stats">
-                <div class="stat"><span class="icon">🏆</span> 200 GeoCoins</div>
+                <div class="stat">
+                  <span class="icon">🏆</span> 200 GeoCoins
+                </div>
                 <div class="stat"><span class="icon">👥</span> Team (0/10)</div>
               </div>
-              
+
               <button class="btn-mission w-100">Join Team</button>
             </div>
           </div>
 
           <div class="mission-card">
-            <div class="mission-image" style="background: linear-gradient(135deg, #3b82f6, #14b8a6);">
-            </div>
+            <div
+              class="mission-image"
+              style="background: linear-gradient(135deg, #3b82f6, #14b8a6)"
+            ></div>
             <div class="mission-body">
               <h3>Sies GST Campus Perimeter</h3>
               <p class="mission-location">📍 SIES GST, Nerul</p>
-              <p class="mission-desc">Clear the dry waste and paper scraps accumulated near the back gate.</p>
-              
+              <p class="mission-desc">
+                Clear the dry waste and paper scraps accumulated near the back
+                gate.
+              </p>
+
               <div class="mission-stats">
                 <div class="stat"><span class="icon">🏆</span> 50 GeoCoins</div>
                 <div class="stat"><span class="icon">⚡</span> Quick</div>
               </div>
-              
+
               <button class="btn-mission w-100">Accept Mission</button>
             </div>
           </div>
-
         </div>
       </div>
     </section>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function() {
+      const dashboardLink = document.getElementById("dashboard-link");
+
+      dashboardLink.addEventListener("click", function (e) {
+        const user = localStorage.getItem("user");
+
+        if (!user) {
+          e.preventDefault();
+          alert("Please login to access dashboard");
+          window.location.href = "auth.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
+      });
+      document.addEventListener("DOMContentLoaded", function () {
         const authBtn = document.getElementById("auth-btn");
         const user = localStorage.getItem("user");
         const token = localStorage.getItem("token");
 
         if (user || token) {
           authBtn.textContent = "Logout";
-          authBtn.href = "#"; 
-          authBtn.addEventListener("click", function(e) {
+          authBtn.href = "#";
+          authBtn.addEventListener("click", function (e) {
             e.preventDefault();
             localStorage.removeItem("user");
             localStorage.removeItem("token");
