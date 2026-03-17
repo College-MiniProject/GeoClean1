@@ -1,43 +1,50 @@
 /* =========================================
-   NEW SLEEK LEADERBOARD STYLES
+   LEADERBOARD STYLES (AURA & SLEEK HIGHLIGHTS)
    ========================================= */
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+}
+
 .leaderboard-section {
-  padding: 120px 20px 80px;
+  padding: 120px 20px 80px; /* Space for fixed navbar at the top */
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-dark);
+  /* UPDATED: Changed from neutral glow to translucent greenish aura blend */
+  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15) 0%, var(--bg-dark) 70%);
 }
 
 .leaderboard-container {
-  background: rgba(15, 23, 42, 0.4); /* Very dark, transparent slate */
-  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
   padding: 40px;
   width: 100%;
-  max-width: 650px; /* Slimmer width like your mockup */
+  max-width: 800px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .leaderboard-header {
   text-align: center;
-  margin-bottom: 35px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 20px;
 }
 
 .leaderboard-header h2 {
   font-family: 'Poppins', sans-serif;
-  font-size: 2.2rem;
-  color: var(--neon-green);
+  font-size: 2rem;
+  color: var(--primary-green);
   margin: 0 0 10px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 }
 
 .leaderboard-header p {
   color: var(--text-gray);
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .leaderboard-list {
@@ -50,41 +57,33 @@
 .leaderboard-card {
   display: flex;
   align-items: center;
-  background: rgba(30, 41, 59, 0.6); /* Card background */
+  background: rgba(15, 23, 42, 0.6); /* Slightly darker slate for contrast against section gradient */
   border-radius: 12px;
   padding: 15px 25px;
-  border-left: 6px solid #475569; /* Default gray left border */
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 4px solid transparent; /* Default no border */
 }
 
 .leaderboard-card:hover {
-  transform: translateX(5px);
-  background: rgba(30, 41, 59, 0.9);
+  transform: translateX(8px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: rgba(30, 41, 59, 0.8);
 }
 
-/* Rank Colors */
-.top-rank.gold { border-left-color: #facc15; }
-.top-rank.silver { border-left-color: #cbd5e1; }
-.top-rank.bronze { border-left-color: #d97706; }
-
 .rank-badge {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  background: #334155;
-  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   margin-right: 20px;
   font-family: 'Poppins', sans-serif;
 }
-
-.top-rank.gold .rank-badge { background: #facc15; color: #000; }
-.top-rank.silver .rank-badge { background: #cbd5e1; color: #000; }
-.top-rank.bronze .rank-badge { background: #d97706; color: #fff; }
 
 .user-info {
   flex-grow: 1;
@@ -93,31 +92,66 @@
 }
 
 .user-name {
-  margin: 0 0 4px 0;
-  font-size: 1.15rem;
+  margin: 0 0 5px 0;
+  font-size: 1.2rem;
   color: var(--text-white);
   font-family: 'Poppins', sans-serif;
-  font-weight: 700;
 }
 
 .user-dept {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-gray);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0;
+  letter-spacing: 1px;
 }
 
+/* points prominent on the right */
 .user-points {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: var(--neon-green);
+  color: var(--primary-green);
   font-family: 'Poppins', sans-serif;
 }
 
 .user-points span {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-gray);
   font-weight: 500;
-  margin-left: 4px;
+}
+
+/* --- Top 3 Styling Highlights --- */
+.top-rank.gold {
+  border-left-color: var(--gold);
+}
+.top-rank.gold .rank-badge {
+  background: var(--gold);
+  color: #000;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.top-rank.silver {
+  border-left-color: var(--silver);
+}
+.top-rank.silver .rank-badge {
+  background: var(--silver);
+  color: #000;
+  box-shadow: 0 0 15px rgba(192, 192, 192, 0.4);
+}
+
+.top-rank.bronze {
+  border-left-color: var(--bronze);
+}
+.top-rank.bronze .rank-badge {
+  background: var(--bronze);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.4);
+}
+
+/* Responsive Design for Leaderboard */
+@media (max-width: 600px) {
+  .leaderboard-container { padding: 20px; }
+  .leaderboard-card { padding: 15px; }
+  .rank-badge { width: 35px; height: 35px; font-size: 1rem; margin-right: 15px; }
+  .user-name { font-size: 1.1rem; }
+  .user-points { font-size: 1.2rem; }
 }
