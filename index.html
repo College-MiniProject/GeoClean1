@@ -19,14 +19,21 @@
   </head>
   <body>
     <nav class="navbar">
-      <div class="logo">Geo<span class="highlight">Clean</span> 🌍</div>
+      <div class="nav-left">
+        <button class="hamburger-menu">☰</button>
+        <div class="logo">
+          <a href="index.html" style="text-decoration: none; color: white">
+            Geo<span class="highlight">Clean</span> 🌍
+          </a>
+        </div>
+      </div>
       <div class="nav-links">
-        <a href="#home" class="active">Home</a>
+        <a href="index.html" class="active">Home</a>
         <a href="leaderboard.html">Leaderboard</a>
         <a href="missions.html">Missions</a>
         <a href="#" id="dashboard-link">Dashboard</a>
       </div>
-      <a id="auth-btn" class="login-btn" style="text-decoration: none"></a>
+      <div id="auth-container"></div>
     </nav>
 
     <section class="hero-container" id="home">
@@ -87,7 +94,7 @@
 
         <div class="cta-buttons">
           <a href="missions.html" class="btn-primary">Start a Mission</a>
-          <button class="btn-secondary">Report Garbage</button>
+          <a href="report.html" class="btn-secondary">Report Garbage</a>
         </div>
       </div>
     </section>
@@ -229,55 +236,21 @@
       </div>
     </section>
     <script>
-      const authBtn = document.getElementById("auth-btn");
-      const user = localStorage.getItem("user");
-
-      if (user) {
-        authBtn.textContent = "Logout";
-        authBtn.href = "#";
-
-        authBtn.addEventListener("click", function (e) {
-          e.preventDefault();
-          localStorage.removeItem("user");
-          window.location.href = "index.html";
-        });
-      } else {
-        authBtn.textContent = "Login / Sign Up";
-        authBtn.href = "auth.html";
-      }
-      document.addEventListener("DOMContentLoaded", function () {
-        const authBtn = document.getElementById("auth-btn");
-        const user = localStorage.getItem("user");
-
-        if (user) {
-          authBtn.textContent = "Logout";
-          authBtn.href = "#";
-
-          authBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-
-            localStorage.removeItem("user");
-
-            window.location.href = "index.html";
-          });
-        }
-
-        // show button after logic finishes
-        authBtn.style.visibility = "visible";
-      });
       const dashboardLink = document.getElementById("dashboard-link");
 
       dashboardLink.addEventListener("click", function (e) {
-        const user = localStorage.getItem("user");
+        const user = localStorage.getItem("user") || sessionStorage.getItem("user");
 
         if (!user) {
           e.preventDefault();
           alert("Please login to access dashboard");
           window.location.href = "auth.html";
         } else {
-          window.location.href = "dashboard.html";
+          window.location.href = "Dashboard.html";
         }
       });
     </script>
+    <script src="js/notifications.js"></script>
+    <script src="js/nav.js"></script>
   </body>
 </html>

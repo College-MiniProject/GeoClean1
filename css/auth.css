@@ -1,11 +1,12 @@
 .auth-body {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--bg-dark);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  padding: 80px 10px 20px;
 }
 
 /* Two glow blobs for extra effect */

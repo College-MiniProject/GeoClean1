@@ -19,10 +19,13 @@
   </head>
   <body>
     <nav class="navbar">
-      <div class="logo">
-        <a href="index.html" style="text-decoration: none; color: white">
-          Geo<span class="highlight">Clean</span> 🌍
-        </a>
+      <div class="nav-left">
+        <button class="hamburger-menu">☰</button>
+        <div class="logo">
+          <a href="index.html" style="text-decoration: none; color: white">
+            Geo<span class="highlight">Clean</span> 🌍
+          </a>
+        </div>
       </div>
       <div class="nav-links">
         <a href="index.html">Home</a>
@@ -30,13 +33,7 @@
         <a href="missions.html">Missions</a>
         <a href="#" id="dashboard-link">Dashboard</a>
       </div>
-      <a
-        href="auth.html"
-        id="auth-btn"
-        class="login-btn"
-        style="text-decoration: none"
-        >Login / Sign Up</a
-      >
+      <div id="auth-container"></div>
     </nav>
 
     <section id="leaderboard" class="leaderboard-section">
@@ -46,95 +43,70 @@
           <p>Compete, Clean, Conquer.</p>
         </div>
 
-        <div class="leaderboard-list">
-          <div class="leaderboard-card top-rank gold">
-            <div class="rank-badge">1</div>
-            <div class="user-info">
-              <h3 class="user-name">Rahul Sharma 🏆</h3>
-              <span class="user-dept">CS Dept</span>
-            </div>
-            <div class="user-points">1250 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card top-rank silver">
-            <div class="rank-badge">2</div>
-            <div class="user-info">
-              <h3 class="user-name">Anjali Gupta 🥈</h3>
-              <span class="user-dept">IT Dept</span>
-            </div>
-            <div class="user-points">1100 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card top-rank bronze">
-            <div class="rank-badge">3</div>
-            <div class="user-info">
-              <h3 class="user-name">Vikram Singh 🥉</h3>
-              <span class="user-dept">Mech Dept</span>
-            </div>
-            <div class="user-points">950 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card">
-            <div class="rank-badge">4</div>
-            <div class="user-info">
-              <h3 class="user-name">Sneha Patel ⭐</h3>
-              <span class="user-dept">Civil Dept</span>
-            </div>
-            <div class="user-points">800 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card">
-            <div class="rank-badge">5</div>
-            <div class="user-info">
-              <h3 class="user-name">Amit Kumar 🚀</h3>
-              <span class="user-dept">IT Dept</span>
-            </div>
-            <div class="user-points">750 <span>pts</span></div>
-          </div>
-
-          <div class="leaderboard-card">
-            <div class="rank-badge">6</div>
-            <div class="user-info">
-              <h3 class="user-name">Priya Das 🌱</h3>
-              <span class="user-dept">CS Dept</span>
-            </div>
-            <div class="user-points">600 <span>pts</span></div>
-          </div>
+        <div class="leaderboard-list" id="leaderboard-list">
+          <p style="text-align: center;">Loading leaderboard...</p>
         </div>
       </div>
     </section>
 
+    <script src="js/notifications.js"></script>
     <script>
       const dashboardLink = document.getElementById("dashboard-link");
+      const user = localStorage.getItem("user") || sessionStorage.getItem("user");
 
       dashboardLink.addEventListener("click", function (e) {
-        const user = localStorage.getItem("user");
-
         if (!user) {
           e.preventDefault();
           alert("Please login to access dashboard");
           window.location.href = "auth.html";
         } else {
-          window.location.href = "dashboard.html";
+          window.location.href = "Dashboard.html";
         }
       });
 
-      document.addEventListener("DOMContentLoaded", function () {
-        const authBtn = document.getElementById("auth-btn");
-        const user = localStorage.getItem("user");
-        const token = localStorage.getItem("token");
+      const API_URL = window.location.origin;
 
-        if (user || token) {
-          authBtn.textContent = "Logout";
-          authBtn.href = "#";
-          authBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            window.location.href = "index.html";
+      async function loadLeaderboard() {
+        const list = document.getElementById('leaderboard-list');
+        try {
+          const res = await fetch(`${API_URL}/leaderboard`);
+          const data = await res.json();
+          const users = data.leaderboard || [];
+
+          list.innerHTML = "";
+          if (users.length === 0) {
+            list.innerHTML = "<p style='text-align:center;'>No data available</p>";
+            return;
+          }
+
+          users.forEach((u, index) => {
+            const rank = index + 1;
+            let rankClass = "";
+            let rankMedal = "";
+            
+            if (rank === 1) { rankClass = "top-rank gold"; rankMedal = "🏆"; }
+            else if (rank === 2) { rankClass = "top-rank silver"; rankMedal = "🥈"; }
+            else if (rank === 3) { rankClass = "top-rank bronze"; rankMedal = "🥉"; }
+
+            const card = document.createElement('div');
+            card.className = `leaderboard-card ${rankClass}`;
+            card.innerHTML = `
+              <div class="rank-badge">${rank}</div>
+              <div class="user-info">
+                <h3 class="user-name">${u.full_name} ${rankMedal}</h3>
+                <span class="user-dept">${u.department || 'Unknown'} Dept</span>
+              </div>
+              <div class="user-points">${u.geocoins || 0} <span>pts</span></div>
+            `;
+            list.appendChild(card);
           });
+        } catch (err) {
+          list.innerHTML = "<p style='text-align:center;'>Error loading leaderboard</p>";
         }
-      });
+      }
+
+      loadLeaderboard();
     </script>
+    <script src="js/nav.js"></script>
   </body>
 </html>

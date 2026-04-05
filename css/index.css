@@ -357,4 +357,8 @@
   .did-you-know-banner { padding: 30px 20px 20px 20px; }
   .dyk-badge { left: 20px; }
   .cta-buttons { flex-direction: column; }
+  .impact-cards-container { 
+    flex-direction: column; 
+    gap: 20px;
+  }
 }

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Complete Mission | GeoClean</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    
+    <style>
+      .report-container {
+        padding: 100px 20px 40px;
+        max-width: 600px;
+        margin: auto;
+      }
+      .page-title { margin-bottom: 20px; text-align: center; }
+      
+      .camera-box {
+        position: relative;
+        width: 100%;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        aspect-ratio: 4/3;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      video { width: 100%; height: 100%; object-fit: cover; }
+      canvas { display: none; }
+      #photo-result { display: none; width: 100%; object-fit: cover; }
+      
+      .overlay-info {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        color: #fff;
+        background: rgba(0,0,0,0.6);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        pointer-events: none;
+      }
+
+      .btn-camera {
+        margin: 10px;
+        padding: 10px 20px;
+        background: var(--primary-green);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .camera-controls { text-align: center; }
+
+      .submit-btn { width: 100%; padding: 15px; background: var(--neon-green); color: #000; border: none; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+      .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-left">
+        <button class="hamburger-menu">☰</button>
+        <div class="logo">
+          <a href="index.html" style="text-decoration: none; color: white">
+            Geo<span class="highlight">Clean</span> 🌍
+          </a>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="missions.html">Missions</a>
+        <a href="Dashboard.html">Dashboard</a>
+      </div>
+      <div id="auth-container"></div>
+    </nav>
+
+    <div class="report-container">
+      <h1 class="page-title">Upload <span class="gradient-text">Proof</span></h1>
+      <p style="text-align: center; color: var(--text-gray); margin-bottom: 20px;">Take a clear photo of the cleaned area to verify completion.</p>
+
+      <div class="camera-box" id="camera-box">
+        <video id="video" autoplay playsinline></video>
+        <img id="photo-result" alt="Captured Photo" />
+        <div class="overlay-info" id="overlay-info">Location fetching...</div>
+      </div>
+
+      <canvas id="canvas"></canvas>
+
+      <div class="camera-controls">
+        <button type="button" class="btn-camera" id="btn-start-cam">Open Camera</button>
+        <button type="button" class="btn-camera" id="btn-capture" style="display:none;">Capture Photo</button>
+        <button type="button" class="btn-camera" id="btn-retake" style="display:none;">Retake</button>
+      </div>
+
+      <form id="complete-form" style="margin-top: 20px;">
+        <input type="hidden" id="after_image" />
+        <button type="submit" class="submit-btn" id="btn-submit" disabled>Submit Proof & Claim Reward</button>
+      </form>
+    </div>
+
+    <script>
+      const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+      if (!user) {
+        alert("You must be logged in.");
+        window.location.href = "auth.html";
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const missionId = urlParams.get('id');
+      if (!missionId) {
+        alert("No mission ID provided.");
+        window.location.href = "missions.html";
+      }
+
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const photoResult = document.getElementById('photo-result');
+      const overlayInfo = document.getElementById('overlay-info');
+      
+      const btnStartCam = document.getElementById('btn-start-cam');
+      const btnCapture = document.getElementById('btn-capture');
+      const btnRetake = document.getElementById('btn-retake');
+      const btnSubmit = document.getElementById('btn-submit');
+      const form = document.getElementById('complete-form');
+      
+      let stream = null;
+      let globalBase64 = null;
+      let gpsLat = null;
+      let gpsLng = null;
+      let gpsAddress = 'Searching...';
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            gpsLat = pos.coords.latitude;
+            gpsLng = pos.coords.longitude;
+            
+            try {
+              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${gpsLat}&lon=${gpsLng}`);
+              const data = await res.json();
+              gpsAddress = data.display_name || `Lat: ${gpsLat.toFixed(4)}, Lng: ${gpsLng.toFixed(4)}`;
+            } catch (e) {
+              gpsAddress = `Lat: ${gpsLat.toFixed(4)}, Lng: ${gpsLng.toFixed(4)}`;
+            }
+            updateOverlay();
+          },
+          (err) => {
+            gpsAddress = "GPS Permission Denied / Unavailable";
+            updateOverlay();
+          }
+        );
+      } else {
+        gpsAddress = "Geolocation not supported";
+        updateOverlay();
+      }
+
+      function updateOverlay() {
+        const d = new Date().toLocaleString();
+        overlayInfo.innerText = `📍 ${gpsAddress}\n🕒 ${d}`;
+      }
+      setInterval(updateOverlay, 1000);
+
+      btnStartCam.addEventListener('click', async () => {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+          video.srcObject = stream;
+          video.style.display = 'block';
+          photoResult.style.display = 'none';
+          btnStartCam.style.display = 'none';
+          btnCapture.style.display = 'inline-block';
+          btnRetake.style.display = 'none';
+          overlayInfo.style.display = 'block';
+        } catch (err) {
+          alert('Camera access denied or unavailable: ' + err.message);
+        }
+      });
+
+      btnCapture.addEventListener('click', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillRect(10, canvas.height - 70, canvas.width - 20, 60);
+
+        ctx.fillStyle = "white";
+        ctx.font = "16px Arial";
+        const d = new Date().toLocaleString();
+        ctx.fillText(`📍 ${gpsAddress.substring(0, 60)}...`, 20, canvas.height - 40);
+        ctx.fillText(`🕒 ${d}`, 20, canvas.height - 15);
+
+        globalBase64 = canvas.toDataURL('image/png');
+        document.getElementById('after_image').value = globalBase64;
+        
+        photoResult.src = globalBase64;
+        photoResult.style.display = 'block';
+        video.style.display = 'none';
+        
+        btnCapture.style.display = 'none';
+        btnRetake.style.display = 'inline-block';
+        btnSubmit.disabled = false;
+        overlayInfo.style.display = 'none';
+
+        if (stream) stream.getTracks().forEach(track => track.stop());
+      });
+
+      btnRetake.addEventListener('click', () => {
+        btnStartCam.click();
+        btnSubmit.disabled = true;
+      });
+
+      const API_URL = window.location.origin;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "Uploading...";
+
+        const payload = {
+          email: user,
+          after_image: document.getElementById('after_image').value,
+          latitude: gpsLat,
+          longitude: gpsLng
+        };
+
+        try {
+          const res = await fetch(`${API_URL}/missions/${missionId}/complete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if(res.ok) {
+            alert(data.message);
+            window.location.href = "missions.html";
+          } else {
+            alert(data.error);
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = "Submit Proof & Claim Reward";
+          }
+        } catch (err) {
+          alert('Network error');
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = "Submit Proof & Claim Reward";
+        }
+      });
+    </script>
+    <script src="js/nav.js"></script>
+  </body>
+</html>

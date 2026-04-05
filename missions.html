@@ -16,13 +16,42 @@
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/missions.css" />
+    
+    <style>
+      /* Modal styles for Mission Details */
+      .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8); z-index: 2000;
+        display: none; justify-content: center; align-items: center;
+      }
+      .modal-card {
+        background: var(--card-bg);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 12px;
+        width: 90%; max-width: 500px;
+        padding: 20px;
+        position: relative;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .modal-close {
+        position: absolute; top: 10px; right: 15px; color: #fff; cursor: pointer; font-size: 1.5rem;
+        background: rgba(0,0,0,0.8); border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; z-index: 10;
+      }
+      .modal-img {
+        width: 100%; border-radius: 8px; margin-bottom: 15px; max-height: 300px; object-fit: cover; cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar">
-      <div class="logo">
-        <a href="index.html" style="text-decoration: none; color: white">
-          Geo<span class="highlight">Clean</span> 🌍
-        </a>
+      <div class="nav-left">
+        <button class="hamburger-menu">☰</button>
+        <div class="logo">
+          <a href="index.html" style="text-decoration: none; color: white">
+            Geo<span class="highlight">Clean</span> 🌍
+          </a>
+        </div>
       </div>
       <div class="nav-links">
         <a href="index.html">Home</a>
@@ -30,13 +59,7 @@
         <a href="missions.html" class="active">Missions</a>
         <a href="#" id="dashboard-link">Dashboard</a>
       </div>
-      <a
-        href="auth.html"
-        id="auth-btn"
-        class="login-btn"
-        style="text-decoration: none"
-        >Login / Sign Up</a
-      >
+      <div id="auth-container"></div>
     </nav>
 
     <section class="missions-header-section">
@@ -50,145 +73,203 @@
         </p>
 
         <div class="mission-filters">
-          <button class="filter-btn active">All</button>
-          <button class="filter-btn">High Reward</button>
-          <button class="filter-btn">Near Me</button>
+          <button class="filter-btn active" id="btn-tab-all" onclick="setTab('all')">All</button>
+          <button class="filter-btn" id="btn-tab-available" onclick="setTab('available')">Available</button>
+          <button class="filter-btn" id="btn-tab-my" onclick="setTab('my')">My Accepted</button>
         </div>
       </div>
     </section>
 
     <section class="missions-content">
       <div class="container">
-        <div class="missions-grid">
-          <div class="mission-card">
-            <div
-              class="mission-image"
-              style="background: linear-gradient(135deg, #10b981, #0ea5e9)"
-            >
-              <span class="urgency-badge critical">🔥 High Priority</span>
-            </div>
-            <div class="mission-body">
-              <h3>Nerul Station West Cleanup</h3>
-              <p class="mission-location">📍 Sector 20, Nerul</p>
-              <p class="mission-desc">
-                Heavy plastic waste reported near the west side auto stand.
-                Needs immediate attention.
-              </p>
-
-              <div class="mission-stats">
-                <div class="stat">
-                  <span class="icon">🏆</span> 150 GeoCoins
-                </div>
-                <div class="stat"><span class="icon">⚡</span> Hard</div>
-              </div>
-
-              <button class="btn-mission w-100">Accept Mission</button>
-            </div>
-          </div>
-
-          <div class="mission-card">
-            <div
-              class="mission-image"
-              style="background: linear-gradient(135deg, #8b5cf6, #d946ef)"
-            ></div>
-            <div class="mission-body">
-              <h3>Seawoods Lake Plastic Drive</h3>
-              <p class="mission-location">📍 Seawoods Estate</p>
-              <p class="mission-desc">
-                Collect discarded bottles and wrappers along the walking path of
-                the lake.
-              </p>
-
-              <div class="mission-stats">
-                <div class="stat"><span class="icon">🏆</span> 75 GeoCoins</div>
-                <div class="stat"><span class="icon">⚡</span> Easy</div>
-              </div>
-
-              <button class="btn-mission w-100">Accept Mission</button>
-            </div>
-          </div>
-
-          <div class="mission-card">
-            <div
-              class="mission-image"
-              style="background: linear-gradient(135deg, #f59e0b, #ef4444)"
-            >
-              <span class="urgency-badge warning">⚠️ Community Goal</span>
-            </div>
-            <div class="mission-body">
-              <h3>Kharghar Hills Trek & Trash</h3>
-              <p class="mission-location">📍 Kharghar Hills</p>
-              <p class="mission-desc">
-                Join 10 other students this weekend to clear the hiking trails
-                of tourist waste.
-              </p>
-
-              <div class="mission-stats">
-                <div class="stat">
-                  <span class="icon">🏆</span> 200 GeoCoins
-                </div>
-                <div class="stat"><span class="icon">👥</span> Team (0/10)</div>
-              </div>
-
-              <button class="btn-mission w-100">Join Team</button>
-            </div>
-          </div>
-
-          <div class="mission-card">
-            <div
-              class="mission-image"
-              style="background: linear-gradient(135deg, #3b82f6, #14b8a6)"
-            ></div>
-            <div class="mission-body">
-              <h3>Sies GST Campus Perimeter</h3>
-              <p class="mission-location">📍 SIES GST, Nerul</p>
-              <p class="mission-desc">
-                Clear the dry waste and paper scraps accumulated near the back
-                gate.
-              </p>
-
-              <div class="mission-stats">
-                <div class="stat"><span class="icon">🏆</span> 50 GeoCoins</div>
-                <div class="stat"><span class="icon">⚡</span> Quick</div>
-              </div>
-
-              <button class="btn-mission w-100">Accept Mission</button>
-            </div>
-          </div>
+        <div class="missions-grid" id="missions-grid">
+          <p style="text-align: center; width: 100%;">Loading missions...</p>
         </div>
       </div>
     </section>
 
+    <!-- Mission Detail Modal -->
+    <div class="modal-overlay" id="mission-modal">
+      <div class="modal-card">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img id="modal-img" class="modal-img" src="" alt="Mission Evidence" onclick="if(window.openZoom) window.openZoom(this.src);">
+        <h3 id="modal-title">Mission Type</h3>
+        <p id="modal-location" style="color: var(--primary-green); font-size: 0.9rem;">📍 Location</p>
+        <p id="modal-desc" style="color: var(--text-gray); margin: 10px 0;">Description goes here.</p>
+        
+        <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.85rem; text-align: left; line-height: 1.5; margin-bottom: 10px;">
+           <p style="margin: 5px 0; display:flex;"><strong>🗺️ Full Address:</strong> <span style="margin-left: 5px;" id="modal-full-address"></span></p>
+           <p style="margin: 5px 0; display:flex;"><strong>🛠️ Equipment:</strong> <span style="margin-left: 5px;" id="modal-equipment"></span></p>
+           <p style="margin: 5px 0; display:flex;"><strong>👥 Workers Req:</strong> <span style="margin-left: 5px;" id="modal-people"></span></p>
+           <p style="margin: 5px 0; display:flex;"><strong>🤖 AI Scanner:</strong> <span style="margin-left: 5px; color:var(--text-gray);" id="modal-ai"></span></p>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+          <span style="font-weight: bold; color: var(--neon-green)">🏆 <span id="modal-reward"></span> GeoCoins</span>
+        </div>
+        
+        <button id="modal-accept-btn" class="btn-mission w-100" style="margin-top: 15px;">Confirm Accept</button>
+      </div>
+    </div>
+
+    <script src="js/notifications.js"></script>
     <script>
+      const user = localStorage.getItem("user") || sessionStorage.getItem("user");
       const dashboardLink = document.getElementById("dashboard-link");
+      const grid = document.getElementById("missions-grid");
+      const modal = document.getElementById("mission-modal");
+      let allMissions = [];
 
       dashboardLink.addEventListener("click", function (e) {
-        const user = localStorage.getItem("user");
-
         if (!user) {
           e.preventDefault();
           alert("Please login to access dashboard");
           window.location.href = "auth.html";
         } else {
-          window.location.href = "dashboard.html";
+          window.location.href = "Dashboard.html";
         }
       });
-      document.addEventListener("DOMContentLoaded", function () {
-        const authBtn = document.getElementById("auth-btn");
-        const user = localStorage.getItem("user");
-        const token = localStorage.getItem("token");
 
-        if (user || token) {
-          authBtn.textContent = "Logout";
-          authBtn.href = "#";
-          authBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            window.location.href = "index.html";
-          });
+      const API_URL = window.location.origin;
+
+      async function loadMissions() {
+        try {
+          const res = await fetch(`${API_URL}/missions`);
+          const data = await res.json();
+          allMissions = data.missions || [];
+          applyFilters();
+        } catch(err) {
+          grid.innerHTML = "<p>Error loading missions from server.</p>";
         }
-      });
+      }
+
+      let currentTab = 'all';
+
+      function setTab(tab) {
+         currentTab = tab;
+         document.getElementById('btn-tab-all').classList.remove('active');
+         document.getElementById('btn-tab-available').classList.remove('active');
+         document.getElementById('btn-tab-my').classList.remove('active');
+         document.getElementById('btn-tab-'+tab).classList.add('active');
+         applyFilters();
+      }
+
+      function applyFilters() {
+         if (!allMissions) return;
+         let filtered = [];
+         if (currentTab === 'all') {
+             // All open missions AND accepted missions by others
+             filtered = allMissions.filter(m => !(m.status === 'accepted' && m.accepted_by === user));
+         } else if (currentTab === 'available') {
+             filtered = allMissions.filter(m => m.status === 'open');
+         } else if (currentTab === 'my') {
+             if(!user) { alert("Login to see your accepted missions"); return; }
+             filtered = allMissions.filter(m => m.status === 'accepted' && m.accepted_by === user);
+         }
+         renderMissions(filtered);
+      }
+
+      function renderMissions(missionsSource) {
+        grid.innerHTML = "";
+        if (missionsSource.length === 0) {
+          grid.innerHTML = '<p style="text-align: center; width: 100%;">No missions found.</p>';
+          return;
+        }
+
+        missionsSource.forEach(m => {
+          if (m.status === 'completed') return; // Hide completed generally unless building a history tab
+
+          const card = document.createElement('div');
+          card.className = "mission-card";
+          
+          let imgUrl = m.before_image ? `${API_URL}/uploads/${m.before_image}` : '';
+          let bgStyle = imgUrl ? `background-image: url('${imgUrl}'); background-size: cover; background-position: center;` : 'background: linear-gradient(135deg, #10b981, #0ea5e9);';
+
+          let buttonHtml = `<button class="btn-mission w-100" onclick="viewMission(${m.id})">View & Accept</button>`;
+          if (m.status === 'accepted') {
+            if (m.accepted_by === user) {
+              buttonHtml = `<button class="btn-mission w-100" style="background:var(--neon-green); color:#000;" onclick="window.location.href='complete.html?id=${m.id}'">Complete Mission</button>`;
+            } else {
+              buttonHtml = `<button class="btn-mission w-100" disabled style="background:#555; cursor:not-allowed;">Underway by Another</button>`;
+            }
+          }
+
+          card.innerHTML = `
+            <div class="mission-image" style="${bgStyle}"></div>
+            <div class="mission-body">
+              <h3>${m.type}</h3>
+              <p class="mission-location" style="font-size:0.8rem; height: 35px; overflow:hidden;">📍 ${m.location_text || 'GPS Location'}</p>
+              <div class="mission-stats" style="margin-top: 10px;">
+                <div class="stat"><span class="icon">🏆</span> ${m.reward} GeoCoins</div>
+              </div>
+              ${buttonHtml}
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      function viewMission(id) {
+        if (!user) {
+          window.location.href = "auth.html";
+          return;
+        }
+        
+        const m = allMissions.find(x => x.id === id);
+        if(!m) return;
+
+        document.getElementById('modal-title').innerText = m.type;
+        document.getElementById('modal-location').innerText = `📍 ${m.location_text || 'Coordinates: ' + m.latitude + ',' + m.longitude}`;
+        document.getElementById('modal-full-address').innerText = m.full_address || m.location_text || 'Coordinates: ' + m.latitude + ',' + m.longitude;
+        document.getElementById('modal-equipment').innerText = m.equipment_needed || 'General Cleanup Tooling';
+        document.getElementById('modal-people').innerText = m.people_needed ? m.people_needed + ' Person(s)' : '1 Person';
+        document.getElementById('modal-ai').innerText = m.ai_analysis || 'No AI scan available for this legacy report.';
+        document.getElementById('modal-desc').innerText = m.description || 'No additional description provided.';
+        document.getElementById('modal-reward').innerText = m.reward;
+        
+        const img = document.getElementById('modal-img');
+        img.src = m.before_image ? `${API_URL}/uploads/${m.before_image}` : '';
+        
+        const acceptBtn = document.getElementById('modal-accept-btn');
+        acceptBtn.onclick = function() { confirmAccept(id); };
+        
+        modal.style.display = 'flex';
+      }
+
+      function closeModal() {
+        modal.style.display = 'none';
+      }
+
+      async function confirmAccept(id) {
+        const acceptBtn = document.getElementById('modal-accept-btn');
+        acceptBtn.innerText = "Accepting...";
+        acceptBtn.disabled = true;
+
+        try {
+           const res = await fetch(`${API_URL}/missions/${id}/accept`, {
+             method: "POST",
+             headers: {"Content-Type": "application/json"},
+             body: JSON.stringify({ email: user })
+           });
+           const data = await res.json();
+           if(res.ok) {
+             alert("Mission Accepted! You can now navigate to complete it.");
+             closeModal();
+             loadMissions(); // reload grid
+           } else {
+             alert(data.error);
+             closeModal();
+             loadMissions();
+           }
+        } catch(e) {
+          alert("Network error.");
+          closeModal();
+        }
+      }
+
+      // Init
+      loadMissions();
     </script>
+    <script src="js/nav.js"></script>
   </body>
 </html>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smart City Data Command | GeoClean</title>
+    <title>Dashboard | GeoClean</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap"
       rel="stylesheet"
@@ -12,64 +12,40 @@
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/dashboard-sleek.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   </head>
   <body class="dashboard-body">
-    <nav class="navbar navbar-sleek">
-      <div class="logo">
-        <a href="index.html" style="text-decoration: none; color: white">
-          Geo<span class="highlight">Clean</span> 🌍
-        </a>
+    <nav class="navbar">
+      <div class="nav-left">
+        <button class="hamburger-menu">☰</button>
+        <div class="logo">
+          <a href="index.html" style="text-decoration: none; color: white">
+            Geo<span class="highlight">Clean</span> 🌍
+          </a>
+        </div>
       </div>
       <div class="nav-links">
         <a href="index.html">Home</a>
         <a href="leaderboard.html">Leaderboard</a>
         <a href="missions.html">Missions</a>
-        <a href="#" id="dashboard-link">Dashboard</a>
+        <a href="Dashboard.html" class="active">Dashboard</a>
       </div>
-      <div class="header-actions">
-        <div class="user-profile-head hidden" id="user-profile-head">
-          <div
-            class="avatar-circle"
-            style="
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              background: rgba(16, 185, 129, 0.2);
-              font-size: 1.2rem;
-              border: 2px solid var(--neon-green);
-            "
-          >
-            🧑‍💻
-          </div>
-          <span class="user-name-text">Welcome, User</span>
-        </div>
-        <a
-          href="auth.html"
-          id="auth-btn"
-          class="login-btn-sleek"
-          style="text-decoration: none"
-          >Login</a
-        >
-      </div>
+      <div id="auth-container"></div>
     </nav>
 
     <div class="ticker-sleek" style="margin-top: 80px">
       <div class="ticker-move-sleek">
         <span class="ticker-item-sleek"
-          ><b class="critical">⚠️ CRITICAL:</b> Sector 15 Dumping Ground
-          unresolved (7d). 500 Bonus GeoCoins for cleanup.</span
+          ><b class="critical">⚠️ CRITICAL:</b> New high reward mission in Sector 17.</span
         >
         <span class="ticker-item-sleek"
-          ><b class="warning">⚠️ WARNING:</b> High plastic density detected near
-          Seawoods Lake.</span
+          ><b class="warning">⚠️ WARNING:</b> Overflowing dustbin reported.</span
         >
         <span class="ticker-item-sleek"
-          ><b class="resolved">✅ RESOLVED:</b> Nerul Station West cleared by
-          Team Alpha.</span
-        >
-        <span class="ticker-item-sleek"
-          ><b class="critical">⚠️ CRITICAL:</b> Sector 15 Dumping Ground
-          unresolved (7d). 500 Bonus GeoCoins for cleanup.</span
+          ><b class="resolved">✅ RESOLVED:</b> Nerul Station West cleared.</span
         >
       </div>
     </div>
@@ -77,34 +53,24 @@
     <div class="dashboard-sleek-main-container">
       <div class="dashboard-grid-sleek">
         <div class="dashboard-column-sleek left-column">
+          <!-- User Profile Settings -->
+          <section class="stats-section-sleek" style="margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; background: var(--card-bg-sleek); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px;">
+              <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 50px; height: 50px; background: rgba(16,185,129,0.2); border: 2px solid var(--neon-green); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8rem;">🧑‍💻</div>
+                <h3 class="user-name-text" style="margin: 0; font-size: 1.4rem;">Loading...</h3>
+              </div>
+              <button id="dashboard-logout-btn" style="background: rgba(255,0,85,0.1); color: #ff0055; border: 1px solid rgba(255,0,85,0.3); padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s;">Logout</button>
+            </div>
+          </section>
+
           <section id="stats" class="stats-section-sleek">
-            <h2 class="section-title-sleek">📊 Your Smart City Impact</h2>
+            <h2 class="section-title-sleek">📊 Your GeoClean Impact</h2>
             <div class="impact-grid-sleek">
-              <div class="impact-card-sleek">
-                <div class="icon-glow-sleek">🗑️</div>
-                <div class="stat-content">
-                  <h3>12 kg</h3>
-                  <p>Plastic Diverted</p>
-                </div>
-              </div>
-              <div class="impact-card-sleek">
-                <div class="icon-glow-sleek">💧</div>
-                <div class="stat-content">
-                  <h3>45 L</h3>
-                  <p>Runoff Prevented</p>
-                </div>
-              </div>
-              <div class="impact-card-sleek">
-                <div class="icon-glow-sleek">☁️</div>
-                <div class="stat-content">
-                  <h3>8 kg</h3>
-                  <p>CO₂ Offset</p>
-                </div>
-              </div>
-              <div class="impact-card-sleek coins-card-sleek">
+              <div class="impact-card-sleek coins-card-sleek" style="width: 100%;">
                 <div class="icon-glow-sleek">🪙</div>
                 <div class="stat-content">
-                  <h3 style="color: var(--neon-green)">350</h3>
+                  <h3 id="geocoins-counter" style="color: var(--neon-green)">0</h3>
                   <p>Total GeoCoins</p>
                 </div>
               </div>
@@ -120,8 +86,8 @@
                 id="disposal-search"
                 placeholder="e.g., Batteries, Syringes..."
               />
-              <button class="btn-search-sleek search-btn-sleek">
-                Find Method
+              <button class="btn-search-sleek search-btn-sleek" style="background:var(--primary-green); border:none; padding: 10px 15px; border-radius:8px; cursor:pointer;">
+                Search
               </button>
             </div>
             <div
@@ -132,79 +98,38 @@
         </div>
 
         <div class="dashboard-column-sleek right-column">
-          <section id="map" class="map-section-sleek">
-            <h2 class="section-title-sleek">🗺️ Ward Health & Active Reports</h2>
-            <div class="map-placeholder-sleek">
-              <div class="ward-health-legend-sleek">
-                <div class="legend-pill">
-                  <span class="grade-badge grade-a">A</span>
-                  <span class="legend-text"
-                    >Sector 17 <span class="status-good">Excellent</span></span
-                  >
+          <section id="map-section" class="map-section-sleek">
+            <h2 class="section-title-sleek">🗺️ Your Home Location</h2>
+            <form id="home-location-form" style="margin-top:20px;">
+                <div style="margin-bottom: 10px;">
+                   <label style="font-size:0.9rem; color:var(--text-gray);">Flat No / Additional Details (Optional)</label>
+                   <input type="text" id="flat_details" placeholder="Apt 4B, Green Building..." style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:#fff; margin-top:5px;"/>
                 </div>
-                <div class="legend-pill">
-                  <span class="grade-badge grade-f">F</span>
-                  <span class="legend-text"
-                    >Sector 15
-                    <span class="status-critical">Critical</span></span
-                  >
+                <div style="display: flex; gap: 10px;">
+                  <button type="button" id="btn-locate-me" style="padding:10px 15px; border-radius:8px; border:none; background:rgba(255,255,255,0.1); color:#fff; cursor:pointer;" title="Use Phone GPS">📍 Locate Me</button>
+                  <button type="submit" class="btn-primary" style="flex: 1; background: var(--primary-green) !important; color: #000 !important;" id="btn-save-loc">Save Home Location</button>
                 </div>
-              </div>
-
-              <iframe
-                src="map.html"
-                width="100%"
-                height="450"
-                style="
-                  border: none;
-                  border-radius: 12px;
-                  backdrop-filter: blur(5px);
-                "
-              ></iframe>
+              </form>
+              <div class="map-placeholder-sleek" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px;">
+              <p style="margin-bottom: 10px;">📍 Drop a pin to set your precise home location for nearby alerts.</p>
+              <div id="home-map" style="width: 100%; height: 250px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 10px;"></div>
+              
+              <input type="text" id="home-loc-input" readonly placeholder="Address will auto-fill..." style="width:100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: #888; margin-bottom: 10px;" />
+              <input type="hidden" id="home-lat-input" />
+              <input type="hidden" id="home-lng-input" />
+              
+              <p style="margin-top:10px; font-size: 0.9rem; color:var(--text-gray);" id="curr-home-label">Current: Not set</p>
             </div>
           </section>
 
           <section id="tracker" class="tracker-section-sleek">
-            <h2 class="section-title-sleek">⏳ Report Lifecycle Tracker</h2>
+            <h2 class="section-title-sleek">⏳ Recent Activity</h2>
             <p class="section-desc-sleek">
-              Tracking latest report:
-              <strong>#REP-4092 (Sector 20, Nerul)</strong>
+              Fetching from missions...
             </p>
             <div class="timeline-container-sleek">
-              <div class="timeline-sleek">
-                <div class="timeline-item-sleek completed">
-                  <div class="timeline-icon-sleek">✅</div>
-                  <div class="timeline-content-sleek">
-                    <h4>Report Submitted</h4>
-                    <p>Photo & GPS data logged. (Oct 24, 10:00 AM)</p>
-                  </div>
-                </div>
-                <div class="timeline-item-sleek completed">
-                  <div class="timeline-icon-sleek">👀</div>
-                  <div class="timeline-content-sleek">
-                    <h4>Community Verified</h4>
-                    <p>
-                      Checked by 3 users. Spam filter passed. (Oct 24, 11:30 AM)
-                    </p>
-                  </div>
-                </div>
-                <div class="timeline-item-sleek active">
-                  <div class="timeline-icon-sleek">🧹</div>
-                  <div class="timeline-content-sleek">
-                    <h4>Assigned to Action</h4>
-                    <p>
-                      Mission created & flagged to NMMC Ward Officer. (In
-                      Progress)
-                    </p>
-                  </div>
-                </div>
-                <div class="timeline-item-sleek pending">
-                  <div class="timeline-icon-sleek">✨</div>
-                  <div class="timeline-content-sleek">
-                    <h4>Resolved</h4>
-                    <p>Pending before/after photo proof.</p>
-                  </div>
-                </div>
+              <div class="timeline-sleek" id="activity-timeline">
+                <p>Loading activity...</p>
               </div>
             </div>
           </section>
@@ -212,58 +137,66 @@
       </div>
     </div>
 
+    <div id="mission-modal" class="modal-overlay-sleek">
+      <div class="modal-content-sleek">
+        <button class="modal-close-btn" onclick="closeMissionModal()">&times;</button>
+        <h2 class="modal-title-sleek" id="modal-title">Mission Details</h2>
+        <div style="color:var(--text-gray); font-size:0.95rem; margin-bottom: 15px; line-height:1.6;">
+          <p style="margin: 5px 0;"><strong>Location:</strong> <span id="modal-location"></span></p>
+          <p style="margin: 5px 0;"><strong>Status:</strong> <span id="modal-status"></span></p>
+          <p style="margin: 5px 0;"><strong>Description:</strong> <span id="modal-desc"></span></p>
+          <p style="margin: 5px 0;"><strong>Reward:</strong> <span id="modal-reward"></span> GeoCoins</p>
+        </div>
+        
+        <div class="modal-img-container">
+          <div class="modal-img-box" id="before-img-box" style="display:none;">
+            <h5>Before</h5>
+            <img id="modal-before-img" src="" alt="Before" style="margin-top: 10px;" />
+          </div>
+          <div class="modal-img-box" id="after-img-box" style="display:none;">
+            <h5>After</h5>
+            <img id="modal-after-img" src="" alt="After" style="margin-top: 10px;" />
+          </div>
+        </div>
+        <div id="modal-map-container" style="display:none; margin-top:20px; width:100%; height:200px; border-radius:8px; border:1px solid rgba(255,255,255,0.2);"></div>
+      </div>
+    </div>
+
+    <!-- Verify Proximity Modal -->
+    <div id="verify-modal" class="modal-overlay-sleek">
+      <div class="modal-content-sleek" style="max-width: 400px; text-align: center;">
+        <button class="modal-close-btn" onclick="closeVerifyModal()">&times;</button>
+        <h2 class="modal-title-sleek">Verify Nearby Garbage</h2>
+        <p style="color:var(--text-gray); font-size:0.95rem; margin-bottom: 20px;">
+          You are near a newly reported garbage site at <br/><strong id="verify-location" style="color:#fff;"></strong>.<br/><br/>
+          Can you confirm if the garbage is actually there?
+        </p>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+          <button id="btn-verify-yes" style="background:var(--primary-green); color:#000; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600;">👍 Yes, it's there</button>
+          <button id="btn-verify-no" style="background:#ff0055; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600;">👎 No, fake report</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/notifications.js"></script>
     <script>
       const dashboardLink = document.getElementById("dashboard-link");
-
-      dashboardLink.addEventListener("click", function (e) {
-        const user = localStorage.getItem("user");
-
-        if (!user) {
-          e.preventDefault();
-          alert("Please login to access dashboard");
-          window.location.href = "auth.html";
-        } else {
-          window.location.href = "dashboard.html";
-        }
-      });
-      const user = localStorage.getItem("user");
+      const user = localStorage.getItem("user") || sessionStorage.getItem("user");
 
       if (!user) {
         window.location.href = "auth.html";
       }
 
       document.addEventListener("DOMContentLoaded", function () {
-        // --- Login/Logout and Profile Logic ---
-        const authBtn = document.getElementById("auth-btn");
-        const profileHead = document.getElementById("user-profile-head");
-        const user = localStorage.getItem("user");
-        const token = localStorage.getItem("token");
+        const logoutBtn = document.getElementById("dashboard-logout-btn");
+        
+        logoutBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          localStorage.removeItem("user");
+          window.location.href = "index.html";
+        });
 
-        if (user || token) {
-          authBtn.textContent = "Logout";
-          authBtn.href = "#";
-          if (user) {
-            try {
-              const userData = JSON.parse(user);
-              if (userData.full_name) {
-                profileHead.querySelector(".user-name-text").textContent =
-                  "Welcome, " + userData.full_name;
-              }
-            } catch (e) {
-              console.error("Could not parse user data");
-            }
-          }
-          profileHead.classList.remove("hidden");
-
-          authBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            window.location.href = "index.html";
-          });
-        }
-
-        // --- Smart Disposal Logic ---
+        // Smart Disposal Logic
         const searchBtn = document.querySelector(".search-btn-sleek");
         const searchInput = document.getElementById("disposal-search");
         const searchResult = document.getElementById("search-result");
@@ -271,15 +204,17 @@
         searchBtn.addEventListener("click", () => {
           const query = searchInput.value.toLowerCase();
           searchResult.classList.remove("hidden");
+          searchResult.style.padding = "15px";
+          searchResult.style.borderLeft = "4px solid";
+          searchResult.style.marginTop = "15px";
+          searchResult.style.background = "rgba(0,0,0,0.3)";
 
           if (query.includes("battery") || query.includes("e-waste")) {
-            searchResult.innerHTML =
-              "<strong>🛑 E-Waste Hazard:</strong> Batteries leak toxic acid. Nearest drop-off: Navi Mumbai E-Waste Center, Sector 11.";
+            searchResult.innerHTML = "<strong>🛑 E-Waste Hazard:</strong> Batteries leak toxic acid. Nearest drop-off: E-Waste Center.";
             searchResult.style.borderLeftColor = "#ffaa00";
             searchResult.style.color = "#ffaa00";
           } else if (query.includes("syringe") || query.includes("medical")) {
-            searchResult.innerHTML =
-              "<strong>☠️ Bio-Hazard:</strong> MUST be sealed in puncture-proof container and given to registered biomedical waste collectors.";
+            searchResult.innerHTML = "<strong>☠️ Bio-Hazard:</strong> MUST be sealed in puncture-proof container.";
             searchResult.style.borderLeftColor = "#ff0055";
             searchResult.style.color = "#ff0055";
           } else if (query === "") {
@@ -287,13 +222,288 @@
             searchResult.style.borderLeftColor = "var(--text-gray)";
             searchResult.style.color = "var(--text-gray)";
           } else {
-            searchResult.innerHTML =
-              "<strong>♻️ General Waste:</strong> Ensure item is clean/dry. Separate into DRY WASTE (Blue) bin for NMMC collection.";
+            searchResult.innerHTML = "<strong>♻️ General Waste:</strong> Separate into DRY WASTE (Blue) bin.";
             searchResult.style.borderLeftColor = "var(--primary-green)";
             searchResult.style.color = "var(--text-gray)";
           }
         });
+
+        loadUserData();
+        loadRecentActivity();
       });
+
+      // Map initialization for Home
+      let homeMap = null;
+      let homeMarker = null;
+
+      function initHomeMap(lat, lng) {
+        if (!homeMap) {
+          homeMap = L.map('home-map').setView([lat || 19.0760, lng || 72.8777], lat ? 15 : 10);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '© OSM'
+          }).addTo(homeMap);
+
+          var geocoder = L.Control.geocoder({
+             defaultMarkGeocode: false
+          })
+          .on('markgeocode', function(e) {
+             var latlng = e.geocode.center;
+             homeMap.setView(latlng, 15);
+             if (homeMarker) {
+                 homeMarker.setLatLng(latlng);
+             } else {
+                 homeMarker = L.marker(latlng, {draggable: true}).addTo(homeMap);
+                 setupMarkerDrag(homeMarker);
+             }
+             fetchAddress(latlng.lat, latlng.lng);
+          })
+          .addTo(homeMap);
+
+          if (lat && lng) {
+             homeMarker = L.marker([lat, lng], {draggable: true}).addTo(homeMap);
+             setupMarkerDrag(homeMarker);
+          }
+
+          homeMap.on('click', function(e) {
+             if (homeMarker) {
+                 homeMarker.setLatLng(e.latlng);
+             } else {
+                 homeMarker = L.marker(e.latlng, {draggable: true}).addTo(homeMap);
+                 setupMarkerDrag(homeMarker);
+             }
+             fetchAddress(e.latlng.lat, e.latlng.lng);
+          });
+        } else if (lat && lng) {
+           homeMap.setView([lat, lng], 15);
+           if(homeMarker) homeMarker.setLatLng([lat, lng]);
+           else homeMarker = L.marker([lat, lng], {draggable: true}).addTo(homeMap);
+        }
+      }
+
+      function setupMarkerDrag(marker) {
+         marker.on('dragend', function() {
+             var pos = marker.getLatLng();
+             fetchAddress(pos.lat, pos.lng);
+         });
+      }
+
+      async function fetchAddress(lat, lng) {
+          document.getElementById('home-loc-input').value = 'Fetching address...';
+          document.getElementById('home-lat-input').value = lat;
+          document.getElementById('home-lng-input').value = lng;
+          try {
+              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+              const data = await res.json();
+              let addr = 'Location Pin';
+              if (data && data.address) {
+                const a = data.address;
+                const parts = [a.road, a.neighbourhood || a.suburb, a.city_district, a.city || a.town || a.village].filter(Boolean);
+                addr = [...new Set(parts)].slice(0, 3).join(', ');
+                if (!addr) addr = data.display_name;
+              } else {
+                addr = data.display_name || `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+              }
+              document.getElementById('home-loc-input').value = addr;
+          } catch(e) {
+              document.getElementById('home-loc-input').value = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+          }
+      }
+
+      const API_URL = window.location.origin;
+
+      async function loadUserData() {
+        try {
+          const res = await fetch(`${API_URL}/user/${user}`);
+          const data = await res.json();
+          if (data.user) {
+            document.querySelector(".user-name-text").textContent = data.user.full_name;
+            document.getElementById("geocoins-counter").textContent = data.user.geocoins || 0;
+            if(data.user.home_location) {
+               document.getElementById("curr-home-label").textContent = "Current: " + data.user.home_location;
+               document.getElementById("home-loc-input").value = data.user.home_location;
+               document.getElementById("home-lat-input").value = data.user.home_lat || '';
+               document.getElementById("home-lng-input").value = data.user.home_lng || '';
+               initHomeMap(data.user.home_lat, data.user.home_lng);
+            } else {
+               initHomeMap();
+            }
+            document.getElementById('btn-locate-me').addEventListener('click', function() {
+              if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(pos => {
+                      var latlng = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+                      homeMap.setView(latlng, 15);
+                      if(homeMarker) homeMarker.setLatLng(latlng);
+                      else {
+                          homeMarker = L.marker(latlng, {draggable: true}).addTo(homeMap);
+                          setupMarkerDrag(homeMarker);
+                      }
+                      fetchAddress(latlng.lat, latlng.lng);
+                  }, err => alert("GPS Permission Denied."));
+              } else {
+                  alert("Geolocation not supported on this browser.");
+              }
+          });
+
+          document.getElementById('home-location-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!homeMarker) {
+              alert("Please pinpoint a location on the map first.");
+              return;
+            }
+            const pos = homeMarker.getLatLng();
+            let finalAddress = document.getElementById('home-loc-input').value;
+            const flat = document.getElementById('flat_details').value;
+            if (flat.trim() !== '') {
+               finalAddress = flat + ", " + finalAddress;
+            }
+            
+            try {
+               const res = await fetch(`${API_URL}/user/home`, {
+                  method: "POST",
+                  headers: {"Content-Type": "application/json"},
+                  body: JSON.stringify({
+                     email: user,
+                     home_location: finalAddress,
+                     home_lat: pos.lat,
+                     home_lng: pos.lng
+                  })
+               });
+               if(res.ok) {
+                   document.getElementById("curr-home-label").textContent = "Current: " + finalAddress;
+                   alert("Precise Home Location saved!");
+               } else {
+                   alert("Failed to save location");
+               }
+            } catch(e) {
+               alert("Error saving location");
+            }
+          });
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+
+
+      async function loadRecentActivity() {
+         try {
+           const res = await fetch(`${API_URL}/missions`);
+           const data = await res.json();
+           const missions = data.missions || [];
+           const myMissions = missions.filter(m => m.creator_email === user || m.accepted_by === user);
+           
+           const activityTimeline = document.getElementById('activity-timeline');
+           activityTimeline.innerHTML = "";
+
+           if(myMissions.length === 0) {
+             activityTimeline.innerHTML = "<p>No recent activity found. Start a mission!</p>";
+             return;
+           }
+
+           window.dashboardMissions = myMissions;
+
+           myMissions.slice(0, 4).forEach((m, index) => {
+             let icon = m.status === 'completed' ? '✨' : (m.status === 'accepted' ? '🧹' : '👀');
+             let statusText = m.status.charAt(0).toUpperCase() + m.status.slice(1);
+             
+             let html = `
+                <div class="timeline-item-sleek ${m.status}">
+                  <div class="timeline-icon-sleek" style="background:var(--card-bg); padding:10px; border-radius:50%; margin-right:15px; font-size:1.2rem;">${icon}</div>
+                  <div class="timeline-content-sleek">
+                    <h4 style="margin:0; color:var(--primary-green);">${m.type}</h4>
+                    <p style="margin:5px 0 0; color:var(--text-gray); font-size:0.9rem;">Status: ${statusText} | ${m.location_text}</p>
+                    <button class="inspect-btn-sleek" onclick="openMissionModal(${index})" style="margin-top:8px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: var(--neon-green); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;">🔍 Inspect Info</button>
+                  </div>
+                </div>
+             `;
+             activityTimeline.innerHTML += html;
+           });
+         } catch(e) {
+           document.getElementById('activity-timeline').innerHTML = "<p>Error loading activity.</p>";
+         }
+      }
+
+      function openMissionModal(index) {
+        if (!window.dashboardMissions || !window.dashboardMissions[index]) return;
+        const m = window.dashboardMissions[index];
+        
+        document.getElementById('modal-title').textContent = m.type;
+        document.getElementById('modal-location').textContent = m.location_text || 'N/A';
+        document.getElementById('modal-status').textContent = m.status ? m.status.charAt(0).toUpperCase() + m.status.slice(1) : 'Open';
+        document.getElementById('modal-desc').textContent = m.description || 'No description provided.';
+        document.getElementById('modal-reward').textContent = m.reward || 0;
+
+        const beforeBox = document.getElementById('before-img-box');
+        const afterBox = document.getElementById('after-img-box');
+        
+        if (m.before_image) {
+          document.getElementById('modal-before-img').src = `${API_URL}/uploads/${m.before_image}`;
+          beforeBox.style.display = 'block';
+        } else {
+          beforeBox.style.display = 'none';
+        }
+
+        if (m.after_image) {
+          document.getElementById('modal-after-img').src = `${API_URL}/uploads/${m.after_image}`;
+          afterBox.style.display = 'block';
+        } else {
+          afterBox.style.display = 'none';
+        }
+
+        document.getElementById('mission-modal').classList.add('show');
+
+        // Render mini map
+        const mapContainer = document.getElementById('modal-map-container');
+        if (m.latitude && m.longitude) {
+            mapContainer.style.display = 'block';
+            setTimeout(() => {
+               if(!window.modalMap) {
+                   window.modalMap = L.map('modal-map-container').setView([m.latitude, m.longitude], 16);
+                   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                     maxZoom: 19,
+                     attribution: '© OSM'
+                   }).addTo(window.modalMap);
+                   window.modalMarker = L.marker([m.latitude, m.longitude]).addTo(window.modalMap);
+               } else {
+                   window.modalMap.setView([m.latitude, m.longitude], 16);
+                   window.modalMarker.setLatLng([m.latitude, m.longitude]);
+                   window.modalMap.invalidateSize();
+               }
+            }, 300); // Wait for modal transition
+        } else {
+            mapContainer.style.display = 'none';
+        }
+      }
+
+      function closeMissionModal() {
+        document.getElementById('mission-modal').classList.remove('show');
+      }
+
+      window.showVerifyModal = function(mission) {
+         document.getElementById('verify-location').innerText = mission.location_text || mission.full_address;
+         document.getElementById('verify-modal').classList.add('show');
+         document.getElementById('btn-verify-yes').onclick = () => submitVerification(mission.id, 'garbage_present');
+         document.getElementById('btn-verify-no').onclick = () => submitVerification(mission.id, 'clean');
+      }
+
+      window.closeVerifyModal = function() {
+         document.getElementById('verify-modal').classList.remove('show');
+      }
+
+      async function submitVerification(missionId, status) {
+         try {
+             await fetch(`${API_URL}/missions/${missionId}/verify`, {
+                 method: 'POST',
+                 headers: {'Content-Type': 'application/json'},
+                 body: JSON.stringify({ email: user, status: status })
+             });
+             alert('Thank you for verifying!');
+         } catch(e) {}
+         closeVerifyModal();
+      }
     </script>
+    <script src="js/nav.js"></script>
   </body>
 </html>
