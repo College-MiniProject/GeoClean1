@@ -158,6 +158,12 @@ def report_mission():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
+        # Check Daily Report Cap (Max 3/day)
+        cursor.execute("SELECT COUNT(*) FROM missions WHERE creator_email = %s AND created_at >= CURRENT_DATE", (creator_email,))
+        daily_reports = cursor.fetchone()[0]
+        if daily_reports >= 3:
+            return jsonify({"error": "Daily report limit reached. You can only post 3 cleanups per day."}), 429
+
         cursor.execute(
             """
             INSERT INTO missions (creator_email, type, description, location_text, latitude, longitude, before_image, full_address, equipment_needed, people_needed, ai_analysis, verification_status, reward)
@@ -235,6 +241,12 @@ def complete_mission(mission_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
+        # Check Daily Complete Cap (Max 3/day)
+        cursor.execute("SELECT COUNT(*) FROM missions WHERE accepted_by = %s AND status = 'completed' AND completed_at >= CURRENT_DATE", (email,))
+        daily_completes = cursor.fetchone()[0]
+        if daily_completes >= 3:
+            return jsonify({"error": "Daily complete limit reached. You can only complete 3 missions per day."}), 429
+
         # Distance Validation Check
         if req_lat is not None and req_lng is not None:
             cursor.execute("SELECT latitude, longitude FROM missions WHERE id = %s", (mission_id,))
@@ -249,7 +261,7 @@ def complete_mission(mission_id):
         cursor.execute(
             """
             UPDATE missions SET status = 'completed', after_image = %s, completed_at = CURRENT_TIMESTAMP
-            WHERE id = %s AND accepted_by = %s AND status = 'accepted' RETURNING reward
+            WHERE id = %s AND accepted_by = %s AND status = 'accepted' RETURNING reward, creator_email
             """,
             (filename, mission_id, email)
         )
@@ -258,10 +270,18 @@ def complete_mission(mission_id):
             return jsonify({"error": "Failed to complete mission. Ensure you are the person who accepted it."}), 400
         
         reward = result[0]
-        # Give reward to user (safely handling NULL starting points)
-        cursor.execute("UPDATE users SET geocoins = COALESCE(geocoins, 0) + %s WHERE email = %s", (reward, email))
+        creator_email = result[1]
+        
+        # Give reward to user: Points for Self-Report, GeoCoins for Official Missions
+        if creator_email == email:
+            cursor.execute("UPDATE users SET points = COALESCE(points, 0) + %s WHERE email = %s", (reward, email))
+            msg = f"Clean-up verified! Earned {reward} Points (Self-Report)"
+        else:
+            cursor.execute("UPDATE users SET geocoins = COALESCE(geocoins, 0) + %s WHERE email = %s", (reward, email))
+            msg = f"Mission completed! Earned {reward} GeoCoins"
+            
         conn.commit()
-        return jsonify({"message": f"Mission completed! Earned {reward} GeoCoins"}), 200
+        return jsonify({"message": msg}), 200
     except Exception as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
@@ -430,7 +450,7 @@ def get_user(email):
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        cursor.execute("SELECT full_name, email, department, geocoins, home_location, home_lat, home_lng FROM users WHERE email=%s", (email,))
+        cursor.execute("SELECT full_name, email, department, geocoins, points, home_location, home_lat, home_lng FROM users WHERE email=%s", (email,))
         user = cursor.fetchone()
         if not user:
             return jsonify({"error": "User not found"}), 404

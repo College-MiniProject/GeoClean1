@@ -12,10 +12,11 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 
 try:
-    # Alter users table to add geocoins and home_location
+    # Alter users table to add geocoins, points, and home_location
     cursor.execute("""
         ALTER TABLE users 
         ADD COLUMN IF NOT EXISTS geocoins INTEGER DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS points INTEGER DEFAULT 0,
         ADD COLUMN IF NOT EXISTS home_location VARCHAR(255),
         ADD COLUMN IF NOT EXISTS home_lat FLOAT,
         ADD COLUMN IF NOT EXISTS home_lng FLOAT;
