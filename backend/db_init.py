@@ -12,7 +12,24 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 
 try:
-    # Alter users table to add geocoins, points, and home_location
+    # Create users table first (if not exists)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            full_name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            department VARCHAR(255),
+            geocoins INTEGER DEFAULT 0,
+            points INTEGER DEFAULT 0,
+            home_location VARCHAR(255),
+            home_lat FLOAT,
+            home_lng FLOAT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # Alter users table to add new columns (safe if they already exist)
     cursor.execute("""
         ALTER TABLE users 
         ADD COLUMN IF NOT EXISTS geocoins INTEGER DEFAULT 0,
@@ -22,18 +39,7 @@ try:
         ADD COLUMN IF NOT EXISTS home_lng FLOAT;
     """)
 
-    # Alter missions table to add new columns
-    cursor.execute("""
-        ALTER TABLE missions 
-        ADD COLUMN IF NOT EXISTS full_address TEXT,
-        ADD COLUMN IF NOT EXISTS equipment_needed VARCHAR(255),
-        ADD COLUMN IF NOT EXISTS people_needed INTEGER DEFAULT 1,
-        ADD COLUMN IF NOT EXISTS ai_analysis TEXT,
-        ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'unverified',
-        ADD COLUMN IF NOT EXISTS false_report_count INTEGER DEFAULT 0;
-    """)
-
-    # Create missions table
+    # Create missions table FIRST (must exist before ALTER)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS missions (
             id SERIAL PRIMARY KEY,
@@ -58,6 +64,17 @@ try:
             verification_status VARCHAR(50) DEFAULT 'unverified',
             false_report_count INTEGER DEFAULT 0
         );
+    """)
+
+    # THEN alter missions table to add any missing columns
+    cursor.execute("""
+        ALTER TABLE missions 
+        ADD COLUMN IF NOT EXISTS full_address TEXT,
+        ADD COLUMN IF NOT EXISTS equipment_needed VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS people_needed INTEGER DEFAULT 1,
+        ADD COLUMN IF NOT EXISTS ai_analysis TEXT,
+        ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'unverified',
+        ADD COLUMN IF NOT EXISTS false_report_count INTEGER DEFAULT 0;
     """)
     
     conn.commit()
