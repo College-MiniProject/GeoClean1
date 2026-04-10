@@ -24,3 +24,9 @@ Thumbs.db
 *.log
 
 .idea/
+
+# AI Model cache (auto-downloaded on first run)
+backend/models/
+
+# Uploaded images
+backend/uploads/

@@ -1,0 +1,31 @@
+# GeoClean Backend — Requirements
+# =================================
+# Install with: pip install -r requirements.txt
+
+# Web Framework
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Database (PostgreSQL)
+psycopg2-binary>=2.9.0
+
+# Authentication
+bcrypt>=4.0.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# AI / Machine Learning — MobileNetV2 via ONNX Runtime
+# (Works on Python 3.14+ unlike TensorFlow)
+onnxruntime>=1.17.0
+
+# Image Processing — Before/After Comparison
+opencv-python>=4.8.0
+scikit-image>=0.22.0
+
+# Image utilities
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# For running the test script
+requests>=2.31.0

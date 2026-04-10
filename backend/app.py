@@ -15,6 +15,13 @@ app = Flask(__name__, template_folder=PROJECT_ROOT, static_folder=PROJECT_ROOT, 
 CORS(app)
 load_dotenv()
 
+# ---------------------------------------------------------------
+# Register the AI Verification Blueprint
+# This adds the /upload-before, /upload-after, and /validate-cleaning endpoints
+# ---------------------------------------------------------------
+from verification_routes import verification_bp
+app.register_blueprint(verification_bp)
+
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
