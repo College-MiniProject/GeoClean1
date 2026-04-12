@@ -1,12 +1,16 @@
 import psycopg2
 import os
+from dotenv import load_dotenv
+
+# Load credentials from .env file (each person has their own)
+load_dotenv()
 
 conn = psycopg2.connect(
-    host="localhost",
-    database="geoclean",
-    user="postgres",
-    password="likhit@postgres",
-    port="5432"
+    host=os.getenv("DB_HOST", "localhost"),
+    database=os.getenv("DB_NAME", "geoclean"),
+    user=os.getenv("DB_USER", "postgres"),
+    password=os.getenv("DB_PASSWORD", "postgres"),
+    port=os.getenv("DB_PORT", "5432")
 )
 
 cursor = conn.cursor()
@@ -62,7 +66,9 @@ try:
             people_needed INTEGER DEFAULT 1,
             ai_analysis TEXT,
             verification_status VARCHAR(50) DEFAULT 'unverified',
-            false_report_count INTEGER DEFAULT 0
+            false_report_count INTEGER DEFAULT 0,
+            slots_taken INTEGER DEFAULT 0,
+            accepted_by_list TEXT DEFAULT '[]'
         );
     """)
 
@@ -74,9 +80,41 @@ try:
         ADD COLUMN IF NOT EXISTS people_needed INTEGER DEFAULT 1,
         ADD COLUMN IF NOT EXISTS ai_analysis TEXT,
         ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'unverified',
-        ADD COLUMN IF NOT EXISTS false_report_count INTEGER DEFAULT 0;
+        ADD COLUMN IF NOT EXISTS false_report_count INTEGER DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS slots_taken INTEGER DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS accepted_by_list TEXT DEFAULT '[]';
     """)
-    
+
+    # Create admins table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS admins (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(100) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            role VARCHAR(50) DEFAULT 'admin',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # Insert default admin (admin / admin123) if not exists
+    import bcrypt
+    cursor.execute("SELECT COUNT(*) FROM admins WHERE username = 'admin'")
+    if cursor.fetchone()[0] == 0:
+        default_hash = bcrypt.hashpw("admin123".encode(), bcrypt.gensalt()).decode()
+        cursor.execute(
+            "INSERT INTO admins (username, password_hash, role) VALUES (%s, %s, %s)",
+            ("admin", default_hash, "superadmin")
+        )
+        print("Default admin created — username: admin / password: admin123")
+    # Create password resets table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS password_resets (
+            token VARCHAR(255) PRIMARY KEY,
+            email VARCHAR(255) NOT NULL,
+            expires_at TIMESTAMP NOT NULL
+        );
+    """)
+
     conn.commit()
     print("Database initialization successful.")
 except Exception as e:

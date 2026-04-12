@@ -147,6 +147,17 @@
           <label>Location Info (Auto-generated)</label>
           <input type="text" id="location_text" readonly placeholder="Waiting for GPS..." />
         </div>
+
+        <div class="form-group">
+          <label>👥 Workers Needed (AI-estimated, you can adjust)</label>
+          <input type="number" id="people_needed" min="1" max="10" value="2" style="text-align: center; font-size: 1.1rem; font-weight: 700;" />
+          <p style="font-size: 0.75rem; color: var(--text-gray); margin-top: 4px;">Min: 1, Max: 10 — More workers = higher reward</p>
+        </div>
+
+        <div id="ai-preview" style="display:none; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+          <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">🤖 AI Analysis Preview</p>
+          <p id="ai-preview-text" style="font-size: 0.8rem; color: var(--text-gray);"></p>
+        </div>
         
         <input type="hidden" id="latitude" />
         <input type="hidden" id="longitude" />
@@ -298,7 +309,8 @@
           location_text: document.getElementById('location_text').value,
           latitude: parseFloat(document.getElementById('latitude').value || 0),
           longitude: parseFloat(document.getElementById('longitude').value || 0),
-          before_image: document.getElementById('before_image').value
+          before_image: document.getElementById('before_image').value,
+          people_needed: parseInt(document.getElementById('people_needed').value) || 2
         };
 
         btnSubmit.disabled = true;

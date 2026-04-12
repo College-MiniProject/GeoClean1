@@ -10,17 +10,15 @@ import psycopg2.extras
 import bcrypt
 from flask_cors import CORS
 
+import smtplib
+from email.message import EmailMessage
+from datetime import datetime, timedelta
+import secrets
+
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 app = Flask(__name__, template_folder=PROJECT_ROOT, static_folder=PROJECT_ROOT, static_url_path='')
 CORS(app)
 load_dotenv()
-
-# ---------------------------------------------------------------
-# Register the AI Verification Blueprint
-# This adds the /upload-before, /upload-after, and /validate-cleaning endpoints
-# ---------------------------------------------------------------
-from verification_routes import verification_bp
-app.register_blueprint(verification_bp)
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
@@ -32,7 +30,7 @@ def get_db_connection():
         host=os.getenv("DB_HOST", "localhost"),
         database=os.getenv("DB_NAME", "geoclean"),
         user=os.getenv("DB_USER", "postgres"),
-        password=os.getenv("DB_PASSWORD", "likhit@postgres"),
+        password=os.getenv("DB_PASSWORD", "postgres"),
         port=os.getenv("DB_PORT", "5432")
     )
 
@@ -82,13 +80,18 @@ def register():
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
-    email = data["email"]
-    password = data["password"]
+    identifier = data.get("email", "")  # Can be email or username
+    password = data.get("password", "")
 
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
+        # Check if identifier is an email (contains @) or a username
+        if "@" in identifier:
+            cursor.execute("SELECT * FROM users WHERE email=%s", (identifier,))
+        else:
+            cursor.execute("SELECT * FROM users WHERE full_name=%s", (identifier,))
+
         user = cursor.fetchone()
         if user is None:
             return jsonify({"error": "User not found"}), 404
@@ -101,6 +104,106 @@ def login():
             return jsonify({"message": "Login successful", "user": user_data}), 200
         else:
             return jsonify({"error": "Invalid password"}), 401
+    finally:
+        cursor.close()
+        conn.close()
+
+# ----- Password Reset Flow -----
+@app.route("/api/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.json
+    email = data.get("email", "").strip()
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT id FROM users WHERE email=%s", (email,))
+        user = cursor.fetchone()
+        if not user:
+            # Return success even if not found to prevent email enumeration
+            return jsonify({"message": "If that email exists, a reset link has been sent."}), 200
+
+        # Generate secure token
+        token = secrets.token_urlsafe(32)
+        expires = datetime.now() + timedelta(hours=1)
+        
+        cursor.execute(
+            "INSERT INTO password_resets (token, email, expires_at) VALUES (%s, %s, %s) "
+            "ON CONFLICT (token) DO NOTHING", 
+            (token, email, expires)
+        )
+        conn.commit()
+
+        # Send Email
+        reset_link = f"{request.host_url}reset-password.html?token={token}"
+        smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+        smtp_port = int(os.getenv("SMTP_PORT", 587))
+        sender_email = os.getenv("SMTP_EMAIL")
+        sender_pass = os.getenv("SMTP_PASSWORD")
+
+        if not sender_email or not sender_pass:
+            print(f"DEBUG ONLY (SMTP NOT CONFIGURED): Reset link for {email} -> {reset_link}")
+            return jsonify({"message": "If that email exists, a reset link has been sent. Check console logs if testing locally."}), 200
+
+        msg = EmailMessage()
+        msg.set_content(f"You requested a password reset for GeoClean.\n\nClick the link below to reset it:\n{reset_link}\n\nThis link expires in 1 hour.")
+        msg["Subject"] = "GeoClean Password Reset"
+        msg["From"] = sender_email
+        msg["To"] = email
+
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender_email, sender_pass)
+            server.send_message(msg)
+
+        return jsonify({"message": "If that email exists, a reset link has been sent."}), 200
+
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return jsonify({"error": "Failed to process request."}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route("/api/reset-password", methods=["POST"])
+def reset_password():
+    data = request.json
+    token = data.get("token")
+    new_password = data.get("new_password")
+
+    if not token or not new_password:
+        return jsonify({"error": "Token and new password required"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Check token validity
+        cursor.execute("SELECT email, expires_at FROM password_resets WHERE token=%s", (token,))
+        row = cursor.fetchone()
+
+        if not row:
+            return jsonify({"error": "Invalid or expired token"}), 400
+        
+        email, expires_at = row[0], row[1]
+        
+        if datetime.now() > expires_at:
+            cursor.execute("DELETE FROM password_resets WHERE token=%s", (token,))
+            conn.commit()
+            return jsonify({"error": "Token has expired"}), 400
+
+        # Update password
+        hashed_pw = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        cursor.execute("UPDATE users SET password_hash=%s WHERE email=%s", (hashed_pw, email))
+        
+        # Delete token
+        cursor.execute("DELETE FROM password_resets WHERE email=%s", (email,))
+        conn.commit()
+
+        return jsonify({"message": "Password successfully reset. You can now login."}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
         conn.close()
@@ -133,33 +236,20 @@ def report_mission():
     equipment_needed = data.get("equipment_needed", "")
 
     filename = save_base64_image(before_img_b64)
+    if not filename:
+        return jsonify({"error": "No image provided. Please capture a photo."}), 400
 
-    # Anti-Fake AI Module (Blocks solid colors/covered camera) using Pillow Variance
-    if before_img_b64:
-        try:
-            from PIL import Image, ImageStat
-            import io, base64
-            # Strip base64 metadata
-            header_end = before_img_b64.find(',')
-            clean_b64 = before_img_b64[header_end + 1:] if header_end != -1 else before_img_b64
-            img_data = base64.b64decode(clean_b64)
-            img = Image.open(io.BytesIO(img_data)).convert('L')
-            variance = ImageStat.Stat(img).var[0]
-            if variance < 80: # Exceptionally strict blank check
-                return jsonify({"error": "AI Vision Error: Image is completely blank or completely out of focus. Please ensure garbage is explicitly visible."}), 400
-        except Exception as e:
-            pass # fallback to accept if PIL fails
+    # All reports go to admin for review — no AI gating
+    ai_analysis = "Pending admin review"
 
-    # Simulated AI Analysis (Mock GenAI Vision)
-    ai_analysis_options = [
-        "Detected mostly plastic waste and synthetic debris. Moderately hazardous to local wildlife. Requires immediate bagging.",
-        "Detected mixed organic and non-organic general waste. Low hazard, but high volume.",
-        "Detected potential hazardous/toxic materials (unknown containers). Requires thick gloves and specialized disposal.",
-        "Detected construction debris (rubble, wood). Heavy lifting required."
-    ]
-    ai_analysis = random.choice(ai_analysis_options)
-    people_needed = random.randint(1, 4)
-    # Dynamic Reward Scaling
+    # People needed: use frontend value if provided, default to 1
+    people_needed = data.get("people_needed")
+    if people_needed is not None:
+        people_needed = max(1, min(int(people_needed), 10))  # Cap between 1-10
+    else:
+        people_needed = 1
+
+    # Dynamic Reward Scaling based on people needed
     dynamic_reward = people_needed * 50
 
     conn = get_db_connection()
@@ -196,14 +286,27 @@ def get_missions():
         cursor.execute("DELETE FROM missions WHERE status = 'open' AND created_at < NOW() - INTERVAL '14 days'")
         
         # Auto-expire missions accepted older than 3 hours (abandoned limit)
+        # For multi-slot: reset to open and clear all slots
         cursor.execute("""
-            UPDATE missions SET status = 'open', accepted_by = NULL, accepted_at = NULL 
+            UPDATE missions SET status = 'open', accepted_by = NULL, accepted_at = NULL,
+            slots_taken = 0, accepted_by_list = '[]'
             WHERE status = 'accepted' AND accepted_at < NOW() - INTERVAL '3 hours'
         """)
         conn.commit()
 
         cursor.execute("SELECT * FROM missions ORDER BY created_at DESC")
-        missions = [dict(row) for row in cursor.fetchall()]
+        missions = []
+        for row in cursor.fetchall():
+            m = dict(row)
+            # Parse the accepted_by_list JSON for the frontend
+            import json as _json
+            try:
+                m['accepted_by_list'] = _json.loads(m.get('accepted_by_list') or '[]')
+            except Exception:
+                m['accepted_by_list'] = []
+            m['slots_taken'] = m.get('slots_taken') or 0
+            m['slots_available'] = (m.get('people_needed') or 1) - m['slots_taken']
+            missions.append(m)
         return jsonify({"missions": missions})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -213,23 +316,64 @@ def get_missions():
 
 @app.route("/missions/<int:mission_id>/accept", methods=["POST"])
 def accept_mission(mission_id):
+    import json as _json
     data = request.json
     email = data.get("email")
 
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
+        # Fetch mission details
+        cursor.execute("SELECT * FROM missions WHERE id = %s", (mission_id,))
+        mission = cursor.fetchone()
+        if not mission:
+            return jsonify({"error": "Mission not found"}), 404
+
+        if mission['status'] == 'completed':
+            return jsonify({"error": "Mission already completed"}), 400
+
+        people_needed = mission['people_needed'] or 1
+        slots_taken = mission['slots_taken'] or 0
+        accepted_list = _json.loads(mission['accepted_by_list'] or '[]')
+
+        # Check if user already accepted this mission
+        if email in accepted_list:
+            return jsonify({"error": "You have already accepted this mission"}), 400
+
+        # Check if slots are available
+        if slots_taken >= people_needed:
+            return jsonify({"error": "All slots for this mission are already taken"}), 400
+
+        # Add user to the accepted list
+        accepted_list.append(email)
+        new_slots_taken = slots_taken + 1
+
+        # If all slots filled → mark as 'accepted' (fully staffed)
+        # If still slots available → keep as 'open' so others can join
+        new_status = 'accepted' if new_slots_taken >= people_needed else 'open'
+
         cursor.execute(
             """
-            UPDATE missions SET status = 'accepted', accepted_by = %s, accepted_at = CURRENT_TIMESTAMP
-            WHERE id = %s AND status = 'open'
+            UPDATE missions SET status = %s, accepted_by = %s, accepted_by_list = %s,
+            slots_taken = %s, accepted_at = CURRENT_TIMESTAMP
+            WHERE id = %s
             """,
-            (email, mission_id)
+            (new_status, email, _json.dumps(accepted_list), new_slots_taken, mission_id)
         )
-        if cursor.rowcount == 0:
-            return jsonify({"error": "Mission already accepted or not found"}), 400
         conn.commit()
-        return jsonify({"message": "Mission accepted successfully"}), 200
+
+        remaining = people_needed - new_slots_taken
+        if remaining > 0:
+            msg = f"Slot accepted! {remaining} more worker(s) needed for this mission."
+        else:
+            msg = "Mission fully staffed! All slots taken. Ready to clean!"
+
+        return jsonify({
+            "message": msg,
+            "slots_taken": new_slots_taken,
+            "slots_available": remaining,
+            "people_needed": people_needed,
+        }), 200
     except Exception as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
@@ -239,6 +383,7 @@ def accept_mission(mission_id):
 
 @app.route("/missions/<int:mission_id>/complete", methods=["POST"])
 def complete_mission(mission_id):
+    import json as _json
     data = request.json
     email = data.get("email")
     after_img_b64 = data.get("after_image")
@@ -246,20 +391,31 @@ def complete_mission(mission_id):
     req_lng = data.get("longitude")
 
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
         # Check Daily Complete Cap (Max 3/day)
-        cursor.execute("SELECT COUNT(*) FROM missions WHERE accepted_by = %s AND status = 'completed' AND completed_at >= CURRENT_DATE", (email,))
+        cursor.execute("SELECT COUNT(*) FROM missions WHERE accepted_by_list LIKE %s AND status = 'completed' AND completed_at >= CURRENT_DATE", (f'%{email}%',))
         daily_completes = cursor.fetchone()[0]
         if daily_completes >= 3:
             return jsonify({"error": "Daily complete limit reached. You can only complete 3 missions per day."}), 429
 
+        # Verify user is in the accepted list
+        cursor.execute("SELECT * FROM missions WHERE id = %s", (mission_id,))
+        mission = cursor.fetchone()
+        if not mission:
+            return jsonify({"error": "Mission not found"}), 404
+
+        accepted_list = _json.loads(mission['accepted_by_list'] or '[]')
+        if email not in accepted_list:
+            return jsonify({"error": "You have not accepted this mission. Accept it first."}), 400
+
+        if mission['status'] == 'completed':
+            return jsonify({"error": "Mission already completed."}), 400
+
         # Distance Validation Check
         if req_lat is not None and req_lng is not None:
-            cursor.execute("SELECT latitude, longitude FROM missions WHERE id = %s", (mission_id,))
-            m_coords = cursor.fetchone()
-            if m_coords and m_coords[0] is not None and m_coords[1] is not None:
-                dist_deg = ((m_coords[0] - float(req_lat))**2 + (m_coords[1] - float(req_lng))**2) ** 0.5
+            if mission['latitude'] is not None and mission['longitude'] is not None:
+                dist_deg = ((mission['latitude'] - float(req_lat))**2 + (mission['longitude'] - float(req_lng))**2) ** 0.5
                 if dist_deg > 0.0015: # approx 150 meters leniency
                     return jsonify({"error": "Photo location does not match original mission site! Upload aborted."}), 400
 
@@ -268,24 +424,25 @@ def complete_mission(mission_id):
         cursor.execute(
             """
             UPDATE missions SET status = 'completed', after_image = %s, completed_at = CURRENT_TIMESTAMP
-            WHERE id = %s AND accepted_by = %s AND status = 'accepted' RETURNING reward, creator_email
+            WHERE id = %s RETURNING reward, creator_email
             """,
-            (filename, mission_id, email)
+            (filename, mission_id)
         )
         result = cursor.fetchone()
         if not result:
-            return jsonify({"error": "Failed to complete mission. Ensure you are the person who accepted it."}), 400
+            return jsonify({"error": "Failed to complete mission."}), 400
         
-        reward = result[0]
-        creator_email = result[1]
+        reward = result['reward']
+        creator_email = result['creator_email']
         
-        # Give reward to user: Points for Self-Report, GeoCoins for Official Missions
+        # Give reward to ALL accepted users (split or full based on your preference)
+        reward_per_person = reward  # Full reward to the completer
         if creator_email == email:
-            cursor.execute("UPDATE users SET points = COALESCE(points, 0) + %s WHERE email = %s", (reward, email))
-            msg = f"Clean-up verified! Earned {reward} Points (Self-Report)"
+            cursor.execute("UPDATE users SET points = COALESCE(points, 0) + %s WHERE email = %s", (reward_per_person, email))
+            msg = f"Clean-up verified! Earned {reward_per_person} Points (Self-Report)"
         else:
-            cursor.execute("UPDATE users SET geocoins = COALESCE(geocoins, 0) + %s WHERE email = %s", (reward, email))
-            msg = f"Mission completed! Earned {reward} GeoCoins"
+            cursor.execute("UPDATE users SET geocoins = COALESCE(geocoins, 0) + %s WHERE email = %s", (reward_per_person, email))
+            msg = f"Mission completed! Earned {reward_per_person} GeoCoins"
             
         conn.commit()
         return jsonify({"message": msg}), 200
@@ -467,6 +624,278 @@ def get_user(email):
     finally:
         cursor.close()
         conn.close()
+
+# ===================================================================
+# ADMIN SYSTEM — Separate login, full control over missions & users
+# ===================================================================
+
+@app.route("/admin/login", methods=["POST"])
+def admin_login():
+    """Admin logs in with credentials from the admins table."""
+    data = request.json
+    username = data.get("username", "")
+    password = data.get("password", "")
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cursor.execute("SELECT * FROM admins WHERE username = %s", (username,))
+        admin = cursor.fetchone()
+        if not admin:
+            return jsonify({"error": "Admin not found"}), 404
+
+        if bcrypt.checkpw(password.encode(), admin['password_hash'].encode()):
+            return jsonify({
+                "message": "Admin login successful",
+                "admin": {"id": admin['id'], "username": admin['username'], "role": admin['role']}
+            }), 200
+        else:
+            return jsonify({"error": "Invalid password"}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/stats", methods=["GET"])
+def admin_stats():
+    """Dashboard statistics for the admin panel."""
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cursor.execute("SELECT COUNT(*) as total FROM users")
+        total_users = cursor.fetchone()['total']
+
+        cursor.execute("SELECT COUNT(*) as total FROM missions")
+        total_missions = cursor.fetchone()['total']
+
+        cursor.execute("SELECT COUNT(*) as total FROM missions WHERE verification_status = 'unverified'")
+        pending = cursor.fetchone()['total']
+
+        cursor.execute("SELECT COUNT(*) as total FROM missions WHERE verification_status = 'verified'")
+        approved = cursor.fetchone()['total']
+
+        cursor.execute("SELECT COUNT(*) as total FROM missions WHERE verification_status = 'rejected'")
+        rejected = cursor.fetchone()['total']
+
+        cursor.execute("SELECT COUNT(*) as total FROM missions WHERE status = 'completed'")
+        completed = cursor.fetchone()['total']
+
+        cursor.execute("SELECT COUNT(*) as total FROM missions WHERE verification_status = 'false_report'")
+        false_reports = cursor.fetchone()['total']
+
+        return jsonify({
+            "total_users": total_users,
+            "total_missions": total_missions,
+            "pending_review": pending,
+            "approved": approved,
+            "rejected": rejected,
+            "completed": completed,
+            "false_reports": false_reports,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/missions", methods=["GET"])
+def admin_get_missions():
+    """List all missions with optional status filter for admin."""
+    status_filter = request.args.get("status")  # 'unverified', 'verified', 'rejected', etc.
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        if status_filter:
+            cursor.execute("SELECT * FROM missions WHERE verification_status = %s ORDER BY created_at DESC", (status_filter,))
+        else:
+            cursor.execute("SELECT * FROM missions ORDER BY created_at DESC")
+        import json as _json
+        missions = []
+        for row in cursor.fetchall():
+            m = dict(row)
+            try:
+                m['accepted_by_list'] = _json.loads(m.get('accepted_by_list') or '[]')
+            except Exception:
+                m['accepted_by_list'] = []
+            missions.append(m)
+        return jsonify({"missions": missions})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/missions/<int:mission_id>/approve", methods=["POST"])
+def admin_approve_mission(mission_id):
+    """Admin approves a mission — marks it as verified and visible."""
+    data = request.json or {}
+    admin_note = data.get("note", "")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "UPDATE missions SET verification_status = 'verified', ai_analysis = %s WHERE id = %s",
+            (f"Admin approved. {admin_note}".strip(), mission_id)
+        )
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Mission not found"}), 404
+        conn.commit()
+        return jsonify({"message": f"Mission #{mission_id} approved"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/missions/<int:mission_id>/reject", methods=["POST"])
+def admin_reject_mission(mission_id):
+    """Admin rejects a mission — hides it from the public feed."""
+    data = request.json or {}
+    reason = data.get("reason", "Rejected by admin")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "UPDATE missions SET verification_status = 'rejected', status = 'hidden', ai_analysis = %s WHERE id = %s",
+            (reason, mission_id)
+        )
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Mission not found"}), 404
+        conn.commit()
+        return jsonify({"message": f"Mission #{mission_id} rejected"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/missions/<int:mission_id>/delete", methods=["DELETE"])
+def admin_delete_mission(mission_id):
+    """Admin permanently deletes a mission."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM missions WHERE id = %s", (mission_id,))
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Mission not found"}), 404
+        conn.commit()
+        return jsonify({"message": f"Mission #{mission_id} deleted permanently"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/missions/<int:mission_id>/edit", methods=["PUT"])
+def admin_edit_mission(mission_id):
+    """Admin can edit any field of a mission."""
+    data = request.json
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        allowed_fields = ['type', 'description', 'reward', 'people_needed', 'equipment_needed', 'status', 'verification_status']
+        updates = []
+        values = []
+        for field in allowed_fields:
+            if field in data:
+                updates.append(f"{field} = %s")
+                values.append(data[field])
+
+        if not updates:
+            return jsonify({"error": "No valid fields to update"}), 400
+
+        values.append(mission_id)
+        cursor.execute(f"UPDATE missions SET {', '.join(updates)} WHERE id = %s", values)
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Mission not found"}), 404
+        conn.commit()
+        return jsonify({"message": f"Mission #{mission_id} updated"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/users", methods=["GET"])
+def admin_get_users():
+    """List all registered users with their stats."""
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cursor.execute("SELECT id, full_name, email, department, geocoins, points, created_at FROM users ORDER BY created_at DESC")
+        users = [dict(row) for row in cursor.fetchall()]
+        return jsonify({"users": users})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/users/<int:user_id>/edit", methods=["PUT"])
+def admin_edit_user(user_id):
+    """Admin can adjust user geocoins, points, etc."""
+    data = request.json
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        allowed_fields = ['geocoins', 'points', 'department', 'full_name']
+        updates = []
+        values = []
+        for field in allowed_fields:
+            if field in data:
+                updates.append(f"{field} = %s")
+                values.append(data[field])
+
+        if not updates:
+            return jsonify({"error": "No valid fields to update"}), 400
+
+        values.append(user_id)
+        cursor.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = %s", values)
+        if cursor.rowcount == 0:
+            return jsonify({"error": "User not found"}), 404
+        conn.commit()
+        return jsonify({"message": "User updated"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/users/<int:user_id>/delete", methods=["DELETE"])
+def admin_delete_user(user_id):
+    """Admin permanently deletes a user."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        if cursor.rowcount == 0:
+            return jsonify({"error": "User not found"}), 404
+        conn.commit()
+        return jsonify({"message": "User deleted"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)

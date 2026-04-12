@@ -20,7 +20,7 @@ from flask import Blueprint, request, jsonify
 
 # Import our verification modules
 from verification.image_prediction import predict_image
-from verification.garbage_detection import detect_garbage
+from verification.garbage_detection import detect_garbage, validate_image_quality
 from verification.image_comparison import compare_images
 from verification.validation_rules import run_all_validations
 
@@ -122,6 +122,15 @@ def upload_before():
         return jsonify({"success": False, "reason": "Image (base64) is required."}), 400
     if not user_id:
         return jsonify({"success": False, "reason": "User ID is required."}), 400
+
+    # --- Validate image quality FIRST (reject black/blank/solid images) ---
+    quality_check = validate_image_quality(image_b64)
+    if not quality_check["is_valid"]:
+        return jsonify({
+            "success": False,
+            "reason": quality_check["reason"],
+            "image_quality": quality_check,
+        }), 400
 
     # --- Save image to disk ---
     try:
@@ -245,6 +254,20 @@ def validate_cleaning():
 
     # Mark session as processing
     session["status"] = "validating"
+
+    # ------------------------------------------------------------------
+    # STEP 0: Image Quality Gate — reject blank/black/fake images
+    # ------------------------------------------------------------------
+    quality_check = validate_image_quality(session["before_image_path"])
+    if not quality_check["is_valid"]:
+        session["status"] = "rejected"
+        return jsonify({
+            "success": False,
+            "status": "rejected",
+            "session_id": session_id,
+            "reason": quality_check["reason"],
+            "image_quality": quality_check,
+        }), 400
 
     # ------------------------------------------------------------------
     # STEP 1: AI Image Prediction on the "before" image

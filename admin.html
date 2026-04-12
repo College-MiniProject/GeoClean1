@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | GeoClean</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: var(--bg-dark); 
+      color: var(--text-white); 
+      min-height: 100vh; 
+      background-image: radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.05), transparent 25%),
+                        radial-gradient(circle at 85% 30%, rgba(14, 165, 233, 0.05), transparent 25%);
+    }
+
+    /* Navbar */
+    .admin-navbar {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+    .admin-navbar .logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .admin-navbar .logo span.highlight {
+      color: var(--primary-green);
+    }
+    .admin-navbar .logo span.admin-tag {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Main Container */
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px; 
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 4px;
+      background: linear-gradient(90deg, var(--primary-green), var(--neon-green));
+      opacity: 0.5;
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .stat-card .number { 
+      font-size: 2.5rem; 
+      font-weight: 800; 
+      color: var(--text-white); 
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 5px;
+      background: linear-gradient(135deg, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-card .label { 
+      font-size: 0.8rem; 
+      color: var(--text-gray); 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+      font-weight: 600;
+    }
+
+    /* Tabs */
+    .tab-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+    .tab-bar { 
+      display: flex; 
+      gap: 15px; 
+    }
+    .tab-btn {
+      padding: 10px 20px; 
+      background: transparent; 
+      border: none; 
+      color: var(--text-gray);
+      font-weight: 600; 
+      cursor: pointer; 
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-white);
+    }
+    .tab-btn.active { 
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--neon-green); 
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+    }
+
+    /* Search/Filter */
+    .search-box {
+      position: relative;
+    }
+    .search-box input {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 10px 15px 10px 35px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      width: 250px;
+      transition: border-color 0.2s;
+    }
+    .search-box input:focus {
+      border-color: var(--neon-green);
+    }
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem;
+      opacity: 0.5;
+    }
+
+    /* Content Area */
+    .content-area {
+      min-height: 500px;
+    }
+
+    /* Mission Cards */
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+    }
+    .mission-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08); 
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex; 
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .mission-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .mission-img-container {
+      width: 100%;
+      height: 180px;
+      position: relative;
+      background: #0f172a;
+    }
+    .mission-img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      transition: transform 0.3s ease;
+    }
+    .mission-card:hover .mission-img {
+      transform: scale(1.05);
+    }
+    .mission-badge {
+      position: absolute;
+      top: 12px; right: 12px;
+      padding: 4px 10px; 
+      border-radius: 20px; 
+      font-size: 0.75rem;
+      font-weight: 700; 
+      text-transform: uppercase;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+    }
+    .mission-badge.pending { background: rgba(245, 158, 11, 0.8); color: #fff; }
+    .mission-badge.verified { background: rgba(16, 185, 129, 0.8); color: #fff; }
+    .mission-badge.rejected { background: rgba(239, 68, 68, 0.8); color: #fff; }
+
+    .mission-info { 
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .mission-info h4 { 
+      font-size: 1.1rem; 
+      margin-bottom: 8px; 
+      font-family: 'Poppins', sans-serif;
+    }
+    .mission-meta { 
+      font-size: 0.85rem; 
+      color: var(--text-gray); 
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+    .mission-meta span.detail { display: block; margin-bottom: 4px; }
+    .mission-meta span.detail i { margin-right: 6px; font-style: normal; }
+
+    .mission-actions { 
+      display: flex; 
+      gap: 10px; 
+      margin-top: auto;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .mission-actions button {
+      flex: 1;
+      padding: 10px; 
+      border: none; 
+      border-radius: 8px; 
+      font-size: 0.85rem;
+      font-weight: 600; 
+      cursor: pointer; 
+      transition: all 0.2s;
+    }
+    .btn-approve { background: rgba(16,185,129,0.15); color: #34d399; }
+    .btn-approve:hover { background: #10b981; color: #fff; }
+    .btn-reject { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .btn-reject:hover { background: #ef4444; color: #fff; }
+    .btn-delete { background: rgba(255,255,255,0.05); color: var(--text-gray); }
+    .btn-delete:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* Users Table */
+    .table-container {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08); 
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .user-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 0.9rem; 
+    }
+    .user-table th { 
+      text-align: left; 
+      padding: 16px 24px; 
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--text-gray); 
+      font-size: 0.8rem; 
+      text-transform: uppercase; 
+      letter-spacing: 1px;
+    }
+    .user-table td { 
+      padding: 16px 24px; 
+      border-bottom: 1px solid rgba(255,255,255,0.04); 
+    }
+    .user-table tr:hover { 
+      background: rgba(255,255,255,0.03); 
+    }
+    .dept-pill {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(30, 41, 59, 0.4);
+      border-radius: 16px;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+    .empty-state .icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+    .empty-state h3 {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+    .empty-state p {
+      color: var(--text-gray);
+      font-size: 0.9rem;
+    }
+
+    /* Modal for Edit User */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 30px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .modal-content h3 {
+      margin-bottom: 20px;
+      font-family: 'Poppins', sans-serif;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-gray);
+      font-size: 0.85rem;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.2);
+      color: white;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 25px;
+    }
+    .modal-actions button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-cancel { background: rgba(255,255,255,0.1); color: white; }
+    .btn-save { background: var(--primary-green); color: black; }
+
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN NAVBAR -->
+  <nav class="admin-navbar">
+    <div class="logo">
+      Geo<span class="highlight">Clean</span> <span class="admin-tag">Admin</span>
+    </div>
+    <div style="display: flex; gap: 20px; align-items: center;">
+      <span id="admin-welcome-text" style="color: var(--text-gray); font-size: 0.9rem; font-weight: 500;"></span>
+      <button class="logout-btn" onclick="doLogout()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Sign Out
+      </button>
+    </div>
+  </nav>
+
+  <!-- ADMIN DASHBOARD -->
+  <div class="admin-container" id="admin-panel">
+    
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <!-- Injected by JS -->
+    </div>
+
+    <!-- Tabs & Search -->
+    <div class="tab-container">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('pending')">📋 Pending Review</button>
+        <button class="tab-btn" onclick="switchTab('all')">📦 All Missions</button>
+        <button class="tab-btn" onclick="switchTab('users')">👥 User Directory</button>
+      </div>
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search by ID, User, or Location..." oninput="handleSearch()">
+      </div>
+    </div>
+
+    <!-- Dynamic Content -->
+    <div class="content-area" id="tab-content">
+      <div class="empty-state">
+        <div class="icon">⏳</div>
+        <h3>Loading Database</h3>
+        <p>Fetching the latest data...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div class="modal-overlay" id="edit-user-modal">
+    <div class="modal-content">
+      <h3>Edit User Details</h3>
+      <input type="hidden" id="edit-user-id">
+      <div class="form-group">
+        <label>GeoCoins (Official Missions)</label>
+        <input type="number" id="edit-geocoins">
+      </div>
+      <div class="form-group">
+        <label>Points (Self-Reports)</label>
+        <input type="number" id="edit-points">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="document.getElementById('edit-user-modal').style.display='none'">Cancel</button>
+        <button class="btn-save" onclick="saveUserEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = window.location.origin;
+    let adminData = null;
+    let currentDataList = []; // Holds missions or users for searching
+
+    // Verify authentication
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = sessionStorage.getItem('admin');
+      if (!saved) {
+        // Not logged in -> redirect to login (auth.html)
+        window.location.href = 'auth.html';
+        return;
+      }
+      adminData = JSON.parse(saved);
+      document.getElementById('admin-welcome-text').textContent = `Welcome, Control Tower`;
+      initDashboard();
+    });
+
+    async function initDashboard() {
+      await loadStats();
+      switchTab('pending');
+    }
+
+    function doLogout() {
+      sessionStorage.removeItem('admin');
+      adminData = null;
+      window.location.href = 'index.html'; // Redirect to Homepage
+    }
+
+    // ===== DASHBOARD =====
+    async function loadStats() {
+      try {
+        const res = await fetch(`${API}/admin/stats`);
+        const s = await res.json();
+        document.getElementById('stats-grid').innerHTML = `
+          <div class="stat-card">
+            <div class="number">${s.pending_review}</div>
+            <div class="label" style="color: #f59e0b;">Pending Review</div>
+          </div>
+          <div class="stat-card">
+            <div class="number">${s.total_missions}</div>
+            <div class="label">Total Missions</div>
+          </div>
+          <div class="stat-card">
+            <div class="number">${s.total_users}</div>
+            <div class="label">Registered Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="number">${s.approved}</div>
+            <div class="label" style="color: #10b981;">Approved</div>
+          </div>
+          <div class="stat-card">
+            <div class="number">${s.completed}</div>
+            <div class="label" style="color: #38bdf8;">Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="number">${s.false_reports}</div>
+            <div class="label" style="color: #ef4444;">False Reports</div>
+          </div>
+        `;
+      } catch(e) { console.error(e); }
+    }
+
+    // ===== TABS & SEARCH =====
+    let currentAdminTab = 'pending';
+    function switchTab(tab) {
+      currentAdminTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('search-input').value = '';
+      
+      if (tab === 'pending') loadMissions('unverified');
+      else if (tab === 'all') loadMissions();
+      else if (tab === 'users') loadUsers();
+    }
+
+    function handleSearch() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      if (currentAdminTab === 'users') {
+        const filtered = currentDataList.filter(u => 
+          String(u.id).includes(q) || 
+          u.full_name.toLowerCase().includes(q) || 
+          u.email.toLowerCase().includes(q)
+        );
+        renderUsers(filtered);
+      } else {
+        const filtered = currentDataList.filter(m => 
+          String(m.id).includes(q) || 
+          (m.location_text || '').toLowerCase().includes(q) || 
+          (m.creator_email || '').toLowerCase().includes(q) ||
+          m.type.toLowerCase().includes(q)
+        );
+        renderMissions(filtered);
+      }
+    }
+
+    function showEmpty(title, desc, icon="📦") {
+      document.getElementById('tab-content').innerHTML = `
+        <div class="empty-state">
+          <div class="icon">${icon}</div>
+          <h3>${title}</h3>
+          <p>${desc}</p>
+        </div>
+      `;
+    }
+
+    // ===== MISSIONS =====
+    async function loadMissions(statusFilter = '') {
+      try {
+        const url = statusFilter ? `${API}/admin/missions?status=${statusFilter}` : `${API}/admin/missions`;
+        const res = await fetch(url);
+        const data = await res.json();
+        currentDataList = data.missions || [];
+        renderMissions(currentDataList);
+      } catch(e) {
+        showEmpty('Error loading data', 'Could not connect to the database.', '⚠️');
+      }
+    }
+
+    function renderMissions(missions) {
+      const content = document.getElementById('tab-content');
+      if (missions.length === 0) {
+        showEmpty('No Missions Found', 'There are currently no reports matching this view.', '📋');
+        return;
+      }
+
+      const html = `<div class="mission-grid">` + missions.map(m => {
+        const imgUrl = m.before_image ? `${API}/uploads/${m.before_image}` : 'https://images.unsplash.com/photo-1532996122724-e3c354a0b1bc?q=80&w=600&auto=format&fit=crop';
+        
+        let badgeClass = 'pending';
+        let badgeText = 'Pending';
+        if(m.verification_status === 'verified') { badgeClass = 'verified'; badgeText = 'Approved'; }
+        if(m.verification_status === 'rejected') { badgeClass = 'rejected'; badgeText = 'Rejected'; }
+        
+        return `
+          <div class="mission-card" id="mission-${m.id}">
+            <div class="mission-img-container">
+              <span class="mission-badge ${badgeClass}">${badgeText}</span>
+              <img src="${imgUrl}" class="mission-img" alt="waste location">
+            </div>
+            <div class="mission-info">
+              <h4>#${m.id} — ${m.type}</h4>
+              <div class="mission-meta">
+                <span class="detail"><i>📍</i> ${m.location_text || 'GPS Location Attached'}</span>
+                <span class="detail"><i>👤</i> ${m.creator_email}</span>
+                <span class="detail" style="color: var(--neon-green)"><i>🏆</i> ${m.reward} GeoCoins</span>
+                <span class="detail"><i>👥</i> ${m.people_needed || 1} Worker(s) Needed</span>
+                <span class="detail"><i>📅</i> ${new Date(m.created_at).toLocaleString()}</span>
+              </div>
+              <div class="mission-actions">
+                ${m.verification_status === 'unverified' ? `
+                  <button class="btn-approve" onclick="approveMission(${m.id})">Approve</button>
+                  <button class="btn-reject" onclick="rejectMission(${m.id})">Reject</button>
+                ` : ''}
+                <button class="btn-delete" onclick="deleteMission(${m.id})">Delete</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('') + `</div>`;
+      
+      content.innerHTML = html;
+    }
+
+    async function approveMission(id) {
+      if (!confirm(`Approve mission #${id}? It will be visible to the public.`)) return;
+      const note = prompt('Add an optional admin note:') || '';
+      try {
+        const res = await fetch(`${API}/admin/missions/${id}/approve`, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ note })
+        });
+        const data = await res.json();
+        loadStats();
+        if (currentAdminTab === 'pending') loadMissions('unverified'); else loadMissions();
+      } catch(e) { alert('Network error'); }
+    }
+
+    async function rejectMission(id) {
+      const reason = prompt('Rejection reason (sent to user):', 'Does not meet criteria.');
+      if (!reason) return;
+      try {
+        const res = await fetch(`${API}/admin/missions/${id}/reject`, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ reason })
+        });
+        const data = await res.json();
+        loadStats();
+        if (currentAdminTab === 'pending') loadMissions('unverified'); else loadMissions();
+      } catch(e) { alert('Network error'); }
+    }
+
+    async function deleteMission(id) {
+      if (!confirm(`PERMANENTLY delete mission #${id}? This action cannot be undone.`)) return;
+      try {
+        const res = await fetch(`${API}/admin/missions/${id}/delete`, { method: 'DELETE' });
+        const data = await res.json();
+        loadStats();
+        document.getElementById(`mission-${id}`)?.remove();
+        currentDataList = currentDataList.filter(m => m.id !== id);
+      } catch(e) { alert('Network error'); }
+    }
+
+    // ===== USERS =====
+    async function loadUsers() {
+      try {
+        const res = await fetch(`${API}/admin/users`);
+        const data = await res.json();
+        currentDataList = data.users || [];
+        renderUsers(currentDataList);
+      } catch(e) {
+        showEmpty('Error loading data', 'Could not connect to the database.', '⚠️');
+      }
+    }
+
+    function renderUsers(users) {
+      const content = document.getElementById('tab-content');
+      if (users.length === 0) { 
+        showEmpty('No Users Found', 'User directory is currently empty.', '👥'); 
+        return; 
+      }
+
+      content.innerHTML = `
+        <div class="table-container">
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Full Name</th>
+                <th>Department</th>
+                <th>GeoCoins</th>
+                <th>Points</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${users.map(u => `
+                <tr id="user-row-${u.id}">
+                  <td style="color: var(--text-gray);">#${u.id}</td>
+                  <td>
+                    <div style="font-weight: 600;">${u.full_name}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-gray);">${u.email}</div>
+                  </td>
+                  <td>${u.department ? `<span class="dept-pill">${u.department}</span>` : '-'}</td>
+                  <td style="font-weight: 700; color: var(--neon-green);">${u.geocoins || 0}</td>
+                  <td style="font-weight: 700;">${u.points || 0}</td>
+                  <td>
+                    <button class="logout-btn" style="padding:4px 10px; font-size:0.75rem; background: rgba(30,64,175,0.2); color: #60a5fa; border: none;" onclick="openEditUserModal(${u.id}, ${u.geocoins||0}, ${u.points||0})">Edit Balances</button>
+                    <!-- Delete button if needed -->
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // Modal logic for User Edit
+    function openEditUserModal(id, coins, points) {
+      document.getElementById('edit-user-id').value = id;
+      document.getElementById('edit-geocoins').value = coins;
+      document.getElementById('edit-points').value = points;
+      document.getElementById('edit-user-modal').style.display = 'flex';
+    }
+
+    async function saveUserEdit() {
+      const id = document.getElementById('edit-user-id').value;
+      const coins = document.getElementById('edit-geocoins').value;
+      const points = document.getElementById('edit-points').value;
+
+      try {
+        const res = await fetch(`${API}/admin/users/${id}/edit`, {
+          method: 'PUT', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ geocoins: parseInt(coins), points: parseInt(points) })
+        });
+        const data = await res.json();
+        document.getElementById('edit-user-modal').style.display = 'none';
+        loadUsers(); // Refresh
+      } catch(e) { alert('Network error'); }
+    }
+
+  </script>
+</body>
+</html>

@@ -43,41 +43,54 @@
 
       <div class="auth-card">
         <form id="loginForm" class="auth-form">
-          <h2>Welcome Back 👋</h2>
-          <p class="auth-subtitle">Continue your mission to clean the city.</p>
+          <h2 id="login-heading">Welcome Back 👋</h2>
+          <p class="auth-subtitle" id="login-subtitle">Continue your mission to clean the city.</p>
+
+          <!-- Role Selector -->
+          <div style="display: flex; gap: 0; margin-bottom: 20px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+            <button type="button" id="role-user-btn" onclick="setLoginRole('user')" style="flex:1; padding: 10px; border: none; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; background: var(--primary-green); color: #000;">
+              👤 User
+            </button>
+            <button type="button" id="role-admin-btn" onclick="setLoginRole('admin')" style="flex:1; padding: 10px; border: none; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.05); color: var(--text-gray);">
+              🛡️ Admin
+            </button>
+          </div>
 
           <div class="input-group">
-            <label>Email Address</label>
+            <label id="login-label">Email or Username</label>
             <input
               id="loginEmail"
-              type="email"
-              placeholder="student@college.edu"
+              type="text"
+              placeholder="student@college.edu or Full Name"
               required
             />
           </div>
 
           <div class="input-group">
             <label>Password</label>
-            <input
-              id="loginPassword"
-              type="password"
-              placeholder="••••••••"
-              required
-            />
+            <div class="password-wrapper">
+              <input
+                id="loginPassword"
+                type="password"
+                placeholder="••••••••"
+                required
+              />
+              <span class="eye-icon" onclick="togglePassword('loginPassword', this)">👁️</span>
+            </div>
           </div>
 
-          <div class="form-actions">
+          <div class="form-actions" id="login-remember-row">
             <label class="checkbox-container">
               <input type="checkbox" id="rememberMe" checked /> Remember me
             </label>
-            <a href="#" class="forgot-pass" onclick="alert('Forgot password functionality will be available in GeoClean V3.')">Forgot Password?</a>
+            <a href="forgot-password.html" class="forgot-pass" id="forgot-pass-link">Forgot Password?</a>
           </div>
 
-          <button type="submit" class="btn-primary full-width">
+          <button type="submit" class="btn-primary full-width" id="login-submit-btn">
             Login to GeoClean
           </button>
 
-          <p class="switch-text">
+          <p class="switch-text" id="login-register-link">
             New here? <a href="#" onclick="toggleForms()">Create an Account</a>
           </p>
         </form>
@@ -108,22 +121,28 @@
 
           <div class="input-group">
             <label>Password</label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Create a strong password"
-              required
-            />
+            <div class="password-wrapper">
+              <input
+                id="password"
+                type="password"
+                placeholder="Create a strong password"
+                required
+              />
+              <span class="eye-icon" onclick="togglePassword('password', this)">👁️</span>
+            </div>
           </div>
 
           <div class="input-group">
             <label>Confirm Password</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              required
-            />
+            <div class="password-wrapper">
+              <input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                required
+              />
+              <span class="eye-icon" onclick="togglePassword('confirmPassword', this)">👁️</span>
+            </div>
             <small class="error-message"></small>
           </div>
 
@@ -247,42 +266,122 @@
       });
 
       const loginForm = document.getElementById("loginForm");
+      let loginRole = 'user'; // default
+
+      function setLoginRole(role) {
+        loginRole = role;
+        const userBtn = document.getElementById('role-user-btn');
+        const adminBtn = document.getElementById('role-admin-btn');
+        const heading = document.getElementById('login-heading');
+        const subtitle = document.getElementById('login-subtitle');
+        const label = document.getElementById('login-label');
+        const input = document.getElementById('loginEmail');
+        const submitBtn = document.getElementById('login-submit-btn');
+        const registerLink = document.getElementById('login-register-link');
+        const rememberRow = document.getElementById('login-remember-row');
+
+        if (role === 'admin') {
+          userBtn.style.background = 'rgba(255,255,255,0.05)';
+          userBtn.style.color = 'var(--text-gray)';
+          adminBtn.style.background = '#f59e0b';
+          adminBtn.style.color = '#000';
+          heading.textContent = 'Admin Access 🛡️';
+          subtitle.textContent = 'Manage missions, users, and system settings.';
+          label.textContent = 'Admin Username';
+          input.placeholder = 'admin';
+          submitBtn.textContent = 'Login as Admin';
+          submitBtn.style.background = '#f59e0b';
+          registerLink.style.display = 'none';
+          rememberRow.style.display = 'none';
+          document.getElementById('forgot-pass-link').style.display = 'none';
+        } else {
+          userBtn.style.background = 'var(--primary-green)';
+          userBtn.style.color = '#000';
+          adminBtn.style.background = 'rgba(255,255,255,0.05)';
+          adminBtn.style.color = 'var(--text-gray)';
+          heading.textContent = 'Welcome Back 👋';
+          subtitle.textContent = 'Continue your mission to clean the city.';
+          label.textContent = 'Email or Username';
+          input.placeholder = 'student@college.edu or Full Name';
+          submitBtn.textContent = 'Login to GeoClean';
+          submitBtn.style.background = '';
+          registerLink.style.display = '';
+          rememberRow.style.display = '';
+          document.getElementById('forgot-pass-link').style.display = 'block';
+        }
+      }
 
       loginForm.addEventListener("submit", function (e) {
         e.preventDefault();
 
-        const email = document.getElementById("loginEmail").value;
+        const identifier = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
 
-        fetch(`${API_URL}/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-          }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.message === "Login successful") {
-              // save login state
-              const remMe = document.getElementById("rememberMe");
-              if (remMe && remMe.checked) {
-                  localStorage.setItem("user", email);
-              } else {
-                  sessionStorage.setItem("user", email);
-                  localStorage.removeItem("user");
-              }
-              window.location.href = "Dashboard.html";
-            } else {
-              alert(data.error);
-            }
+        if (loginRole === 'admin') {
+          // Admin login → /admin/login
+          fetch(`${API_URL}/admin/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: identifier, password: password }),
           })
-          .catch((err) => {
-            alert("Login Failed: Network Error or Server Unreachable. " + err.message);
-          });
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.message === "Admin login successful") {
+                sessionStorage.setItem("admin", JSON.stringify(data.admin));
+                window.location.href = "admin.html";
+              } else {
+                alert(data.error || "Admin login failed");
+              }
+            })
+            .catch((err) => {
+              alert("Login Failed: Server unreachable. " + err.message);
+            });
+        } else {
+          // User login → /login
+          fetch(`${API_URL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: identifier, password: password }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.message === "Login successful") {
+                const userEmail = data.user.email;
+                const remMe = document.getElementById("rememberMe");
+                if (remMe && remMe.checked) {
+                  localStorage.setItem("user", userEmail);
+                } else {
+                  sessionStorage.setItem("user", userEmail);
+                  localStorage.removeItem("user");
+                }
+                window.location.href = "Dashboard.html";
+              } else {
+                alert(data.error);
+              }
+            })
+            .catch((err) => {
+              alert("Login Failed: Server unreachable. " + err.message);
+            });
+        }
+      });
+
+      // Show/Hide Password Toggle Function
+      function togglePassword(inputId, iconEl) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+          input.type = "text";
+          iconEl.textContent = "🙈"; 
+        } else {
+          input.type = "password";
+          iconEl.textContent = "👁️";
+        }
+      }
+
+      // Auto-redirect if already logged in via Remember Me
+      window.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('user')) {
+          window.location.href = 'Dashboard.html';
+        }
       });
     </script>
     <script src="js/nav.js"></script>

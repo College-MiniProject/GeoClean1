@@ -158,3 +158,27 @@
   font-size: 12px;
   margin-top: 5px;
 }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 40px !important; /* space for icon */
+}
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  opacity: 0.6;
+  font-size: 1.2rem;
+  transition: opacity 0.2s;
+  user-select: none;
+}
+
+.eye-icon:hover {
+  opacity: 1;
+}

@@ -98,9 +98,17 @@
         <p id="modal-desc" style="color: var(--text-gray); margin: 10px 0;">Description goes here.</p>
         
         <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.85rem; text-align: left; line-height: 1.5; margin-bottom: 10px;">
-           <p style="margin: 5px 0; display:flex;"><strong>🗺️ Full Address:</strong> <span style="margin-left: 5px;" id="modal-full-address"></span></p>
+           <p style="margin: 5px 0; display:flex;"><strong>🗣️ Full Address:</strong> <span style="margin-left: 5px;" id="modal-full-address"></span></p>
            <p style="margin: 5px 0; display:flex;"><strong>🛠️ Equipment:</strong> <span style="margin-left: 5px;" id="modal-equipment"></span></p>
            <p style="margin: 5px 0; display:flex;"><strong>👥 Workers Req:</strong> <span style="margin-left: 5px;" id="modal-people"></span></p>
+           <div id="modal-slots-bar" style="margin: 8px 0;">
+             <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+               <span id="modal-slots-text" style="color: var(--neon-green);"></span>
+             </div>
+             <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 8px; overflow: hidden;">
+               <div id="modal-slots-fill" style="height: 100%; background: var(--neon-green); border-radius: 4px; transition: width 0.3s;"></div>
+             </div>
+           </div>
            <p style="margin: 5px 0; display:flex;"><strong>🤖 AI Scanner:</strong> <span style="margin-left: 5px; color:var(--text-gray);" id="modal-ai"></span></p>
         </div>
         
@@ -136,7 +144,14 @@
         try {
           const res = await fetch(`${API_URL}/missions`);
           const data = await res.json();
-          allMissions = data.missions || [];
+          // Only show admin-approved missions (or ones user has already accepted)
+          allMissions = (data.missions || []).filter(m => {
+            if (m.verification_status === 'verified') return true;
+            // Also show unverified missions where user is in accepted list (edge case)
+            const list = m.accepted_by_list || [];
+            if (list.includes(user)) return true;
+            return false;
+          });
           applyFilters();
         } catch(err) {
           grid.innerHTML = "<p>Error loading missions from server.</p>";
@@ -158,13 +173,18 @@
          if (!allMissions) return;
          let filtered = [];
          if (currentTab === 'all') {
-             // All open missions AND accepted missions by others
-             filtered = allMissions.filter(m => !(m.status === 'accepted' && m.accepted_by === user));
+             // Show all missions (user can still see ones they've joined)
+             filtered = allMissions.filter(m => m.status !== 'completed');
          } else if (currentTab === 'available') {
-             filtered = allMissions.filter(m => m.status === 'open');
+             // Missions with open slots that user hasn't accepted
+             filtered = allMissions.filter(m => {
+               const list = m.accepted_by_list || [];
+               const slotsAvailable = (m.people_needed || 1) - (m.slots_taken || 0);
+               return m.status !== 'completed' && !list.includes(user) && slotsAvailable > 0;
+             });
          } else if (currentTab === 'my') {
              if(!user) { alert("Login to see your accepted missions"); return; }
-             filtered = allMissions.filter(m => m.status === 'accepted' && m.accepted_by === user);
+             filtered = allMissions.filter(m => (m.accepted_by_list || []).includes(user));
          }
          renderMissions(filtered);
       }
@@ -177,7 +197,7 @@
         }
 
         missionsSource.forEach(m => {
-          if (m.status === 'completed') return; // Hide completed generally unless building a history tab
+          if (m.status === 'completed') return;
 
           const card = document.createElement('div');
           card.className = "mission-card";
@@ -185,13 +205,38 @@
           let imgUrl = m.before_image ? `${API_URL}/uploads/${m.before_image}` : '';
           let bgStyle = imgUrl ? `background-image: url('${imgUrl}'); background-size: cover; background-position: center;` : 'background: linear-gradient(135deg, #10b981, #0ea5e9);';
 
-          let buttonHtml = `<button class="btn-mission w-100" onclick="viewMission(${m.id})">View & Accept</button>`;
-          if (m.status === 'accepted') {
-            if (m.accepted_by === user) {
-              buttonHtml = `<button class="btn-mission w-100" style="background:var(--neon-green); color:#000;" onclick="window.location.href='complete.html?id=${m.id}'">Complete Mission</button>`;
-            } else {
-              buttonHtml = `<button class="btn-mission w-100" disabled style="background:#555; cursor:not-allowed;">Underway by Another</button>`;
-            }
+          const peopleNeeded = m.people_needed || 1;
+          const slotsTaken = m.slots_taken || 0;
+          const slotsAvailable = peopleNeeded - slotsTaken;
+          const acceptedList = m.accepted_by_list || [];
+          const userAccepted = acceptedList.includes(user);
+
+          let buttonHtml = '';
+          let slotHtml = '';
+
+          if (peopleNeeded > 1) {
+            const pct = Math.round((slotsTaken / peopleNeeded) * 100);
+            slotHtml = `
+              <div style="margin: 6px 0; font-size: 0.75rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 3px;">
+                  <span>👥 ${slotsTaken}/${peopleNeeded} joined</span>
+                  <span style="color: var(--neon-green);">${slotsAvailable} slot${slotsAvailable !== 1 ? 's' : ''} open</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 6px; overflow: hidden;">
+                  <div style="width: ${pct}%; height: 100%; background: var(--neon-green); border-radius: 4px;"></div>
+                </div>
+              </div>
+            `;
+          }
+
+          if (m.status === 'completed') {
+            buttonHtml = `<button class="btn-mission w-100" disabled style="background:#555; cursor:not-allowed;">Completed</button>`;
+          } else if (userAccepted) {
+            buttonHtml = `<button class="btn-mission w-100" style="background:var(--neon-green); color:#000;" onclick="window.location.href='complete.html?id=${m.id}'">Complete Mission</button>`;
+          } else if (slotsAvailable > 0) {
+            buttonHtml = `<button class="btn-mission w-100" onclick="viewMission(${m.id})">View & Accept</button>`;
+          } else {
+            buttonHtml = `<button class="btn-mission w-100" disabled style="background:#555; cursor:not-allowed;">All Slots Taken</button>`;
           }
 
           card.innerHTML = `
@@ -199,7 +244,8 @@
             <div class="mission-body">
               <h3>${m.type}</h3>
               <p class="mission-location" style="font-size:0.8rem; height: 35px; overflow:hidden;">📍 ${m.location_text || 'GPS Location'}</p>
-              <div class="mission-stats" style="margin-top: 10px;">
+              ${slotHtml}
+              <div class="mission-stats" style="margin-top: 6px;">
                 <div class="stat"><span class="icon">🏆</span> ${m.reward} GeoCoins</div>
               </div>
               ${buttonHtml}
@@ -218,20 +264,41 @@
         const m = allMissions.find(x => x.id === id);
         if(!m) return;
 
+        const peopleNeeded = m.people_needed || 1;
+        const slotsTaken = m.slots_taken || 0;
+        const slotsAvailable = peopleNeeded - slotsTaken;
+        const acceptedList = m.accepted_by_list || [];
+        const userAccepted = acceptedList.includes(user);
+
         document.getElementById('modal-title').innerText = m.type;
         document.getElementById('modal-location').innerText = `📍 ${m.location_text || 'Coordinates: ' + m.latitude + ',' + m.longitude}`;
         document.getElementById('modal-full-address').innerText = m.full_address || m.location_text || 'Coordinates: ' + m.latitude + ',' + m.longitude;
         document.getElementById('modal-equipment').innerText = m.equipment_needed || 'General Cleanup Tooling';
-        document.getElementById('modal-people').innerText = m.people_needed ? m.people_needed + ' Person(s)' : '1 Person';
+        document.getElementById('modal-people').innerText = `${peopleNeeded} Person(s)`;
         document.getElementById('modal-ai').innerText = m.ai_analysis || 'No AI scan available for this legacy report.';
         document.getElementById('modal-desc').innerText = m.description || 'No additional description provided.';
         document.getElementById('modal-reward').innerText = m.reward;
+
+        // Slots progress bar
+        const pct = Math.round((slotsTaken / peopleNeeded) * 100);
+        document.getElementById('modal-slots-text').innerText = `${slotsTaken} of ${peopleNeeded} slots taken — ${slotsAvailable} available`;
+        document.getElementById('modal-slots-fill').style.width = pct + '%';
         
         const img = document.getElementById('modal-img');
         img.src = m.before_image ? `${API_URL}/uploads/${m.before_image}` : '';
         
         const acceptBtn = document.getElementById('modal-accept-btn');
-        acceptBtn.onclick = function() { confirmAccept(id); };
+        if (userAccepted) {
+          acceptBtn.innerText = '✅ Already Accepted — Complete Mission';
+          acceptBtn.onclick = function() { window.location.href = 'complete.html?id=' + id; };
+        } else if (slotsAvailable > 0) {
+          acceptBtn.innerText = `Accept Slot (${slotsAvailable} remaining)`;
+          acceptBtn.disabled = false;
+          acceptBtn.onclick = function() { confirmAccept(id); };
+        } else {
+          acceptBtn.innerText = 'All Slots Taken';
+          acceptBtn.disabled = true;
+        }
         
         modal.style.display = 'flex';
       }
