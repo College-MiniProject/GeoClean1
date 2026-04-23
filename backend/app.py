@@ -416,11 +416,13 @@ def complete_mission(mission_id):
             return jsonify({"error": "Completion proof already submitted and is under admin review."}), 400
 
         # Distance Validation Check
-        if req_lat is not None and req_lng is not None:
-            if mission['latitude'] is not None and mission['longitude'] is not None:
-                dist_deg = ((mission['latitude'] - float(req_lat))**2 + (mission['longitude'] - float(req_lng))**2) ** 0.5
-                if dist_deg > 0.0015: # approx 150 meters leniency
-                    return jsonify({"error": "Photo location does not match original mission site! Upload aborted."}), 400
+        if req_lat is None or req_lng is None:
+            return jsonify({"error": "Location data is required to verify the cleanup. Please enable location permissions."}), 400
+
+        if mission['latitude'] is not None and mission['longitude'] is not None:
+            dist_deg = ((mission['latitude'] - float(req_lat))**2 + (mission['longitude'] - float(req_lng))**2) ** 0.5
+            if dist_deg > 0.0015: # approx 150 meters leniency
+                return jsonify({"error": "Photo location does not match original mission site! Upload aborted."}), 400
 
         filename = save_base64_image(after_img_b64)
 
@@ -488,20 +490,28 @@ def update_home_location():
 @app.route("/notifications/poll", methods=["GET"])
 def poll_notifications():
     email = request.args.get("email")
+    req_lat = request.args.get("lat")
+    req_lng = request.args.get("lng")
     if not email:
         return jsonify({"error": "Email is required"}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        # Get user's location
-        cursor.execute("SELECT home_lat, home_lng FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
-        if not user or user['home_lat'] is None or user['home_lng'] is None:
-            return jsonify({"notifications": []})
-        
-        user_lat = user['home_lat']
-        user_lng = user['home_lng']
+        user_lat, user_lng = None, None
+        if req_lat and req_lng:
+            try:
+                user_lat, user_lng = float(req_lat), float(req_lng)
+            except ValueError:
+                pass
+                
+        if user_lat is None or user_lng is None:
+            # Fallback to home location
+            cursor.execute("SELECT home_lat, home_lng FROM users WHERE email = %s", (email,))
+            user = cursor.fetchone()
+            if not user or user['home_lat'] is None or user['home_lng'] is None:
+                return jsonify({"notifications": []})
+            user_lat, user_lng = user['home_lat'], user['home_lng']
 
         # Get recent missions (last 10 minutes) not created by this user
         cursor.execute("""
@@ -533,18 +543,27 @@ def poll_notifications():
 @app.route("/notifications/verify_poll", methods=["GET"])
 def poll_verifications():
     email = request.args.get("email")
+    req_lat = request.args.get("lat")
+    req_lng = request.args.get("lng")
     if not email:
         return jsonify({"error": "Email is required"}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
-        cursor.execute("SELECT home_lat, home_lng FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
-        if not user or user['home_lat'] is None or user['home_lng'] is None:
-            return jsonify({"verifications": []})
-        
-        user_lat, user_lng = user['home_lat'], user['home_lng']
+        user_lat, user_lng = None, None
+        if req_lat and req_lng:
+            try:
+                user_lat, user_lng = float(req_lat), float(req_lng)
+            except ValueError:
+                pass
+                
+        if user_lat is None or user_lng is None:
+            cursor.execute("SELECT home_lat, home_lng FROM users WHERE email = %s", (email,))
+            user = cursor.fetchone()
+            if not user or user['home_lat'] is None or user['home_lng'] is None:
+                return jsonify({"verifications": []})
+            user_lat, user_lng = user['home_lat'], user['home_lng']
 
         cursor.execute("""
             SELECT id, type, location_text, full_address, latitude, longitude 

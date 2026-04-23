@@ -6,6 +6,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    let currentLat = null;
+    let currentLng = null;
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            currentLat = pos.coords.latitude;
+            currentLng = pos.coords.longitude;
+        }, err => console.log("GPS not available, will fallback to home location in backend"));
+    }
+
+    function injectVerifyModal() {
+        if (document.getElementById('global-verify-modal')) return;
+        const html = `
+        <div id="global-verify-modal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+          <div style="background:#1a1a1a; padding:20px; border-radius:12px; border:1px solid #10b981; max-width:400px; text-align:center; color:white; position:relative;">
+            <button onclick="document.getElementById('global-verify-modal').style.display='none'" style="position:absolute; top:10px; right:15px; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
+            <h2 style="margin-top:0;">Verify Nearby Garbage</h2>
+            <p style="color:#aaa; font-size:0.95rem; margin-bottom:20px;">
+              You are near a newly reported garbage site at <br/><strong id="global-verify-location" style="color:#fff;"></strong>.<br/><br/>
+              Can you confirm if the garbage is actually there?
+            </p>
+            <div style="display:flex; gap:15px; justify-content:center;">
+              <button id="btn-global-verify-yes" style="background:#10b981; color:#000; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">👍 Yes, it's there</button>
+              <button id="btn-global-verify-no" style="background:#ff0055; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">👎 No, fake report</button>
+            </div>
+          </div>
+        </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+    }
+
+    window.submitGlobalVerification = async function(missionId, status) {
+        const user = localStorage.getItem('user') || sessionStorage.getItem("user");
+        try {
+            await fetch(`${window.location.origin}/missions/${missionId}/verify`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: user, status: status })
+            });
+            alert('Thank you for verifying!');
+        } catch(e) {}
+        document.getElementById('global-verify-modal').style.display = 'none';
+    };
+
     // Register Service Worker
     if ('serviceWorker' in navigator) {
         try {
@@ -19,21 +63,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const user = localStorage.getItem('user') || sessionStorage.getItem("user");
-            if (user && Notification.permission === 'granted') {
+            if (user) {
                 // Poll backend for proximity missions every 15 seconds
                 setInterval(async () => {
                    try {
-                       const res = await fetch(`${window.location.origin}/notifications/poll?email=${user}`);
+                       let latLngQuery = (currentLat !== null && currentLng !== null) ? `&lat=${currentLat}&lng=${currentLng}` : "";
+                       const res = await fetch(`${window.location.origin}/notifications/poll?email=${user}${latLngQuery}`);
                        if(res.ok) {
                            const data = await res.json();
                            if (data.notifications && data.notifications.length > 0) {
                                let notified = JSON.parse(sessionStorage.getItem('notified_missions') || '[]');
                                data.notifications.forEach(m => {
                                    if (!notified.includes(m.id)) {
-                                       registration.showNotification("New Mission Nearby! 🌍", {
-                                           body: `${m.type} reported near you. Open Dashboard to inspect.`,
-                                           icon: "https://cdn-icons-png.flaticon.com/512/3233/3233483.png"
-                                       });
+                                       if (Notification.permission === 'granted') {
+                                           registration.showNotification("New Mission Nearby! 🌍", {
+                                               body: `${m.type} reported near you. Open Dashboard to inspect.`,
+                                               icon: "https://cdn-icons-png.flaticon.com/512/3233/3233483.png"
+                                           });
+                                       }
                                        notified.push(m.id);
                                    }
                                });
@@ -48,27 +95,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Poll backend for proximity verifications every 20 seconds
                 setInterval(async () => {
                    try {
-                       const vRes = await fetch(`${window.location.origin}/notifications/verify_poll?email=${user}`);
+                       let latLngQuery = (currentLat !== null && currentLng !== null) ? `&lat=${currentLat}&lng=${currentLng}` : "";
+                       const vRes = await fetch(`${window.location.origin}/notifications/verify_poll?email=${user}${latLngQuery}`);
                        if(vRes.ok) {
                            const vData = await vRes.json();
                            if (vData.verifications && vData.verifications.length > 0) {
+                               injectVerifyModal();
                                let asked = JSON.parse(sessionStorage.getItem('asked_verifications') || '[]');
                                for (let m of vData.verifications) {
                                    if (!asked.includes(m.id)) {
-                                       // Trigger Verify Modal if on dashboard
-                                       if(window.location.pathname.includes('Dashboard.html') && typeof window.showVerifyModal === 'function') {
-                                           window.showVerifyModal(m);
-                                           asked.push(m.id);
-                                           break; // only ask one at a time
-                                       } else {
-                                           // Just show push notification
+                                       // Show global modal
+                                       document.getElementById('global-verify-location').innerText = m.location_text || m.full_address || "Nearby Location";
+                                       document.getElementById('global-verify-modal').style.display = 'flex';
+                                       
+                                       document.getElementById('btn-global-verify-yes').onclick = () => submitGlobalVerification(m.id, 'garbage_present');
+                                       document.getElementById('btn-global-verify-no').onclick = () => submitGlobalVerification(m.id, 'clean');
+
+                                       // Show push notification
+                                       if (Notification.permission === 'granted') {
                                            registration.showNotification("Verify nearby mission", {
-                                               body: `Are you near ${m.location_text}? Is there garbage? Open Dashboard to confirm.`,
+                                               body: `Are you near ${m.location_text || m.full_address}? Is there garbage? Please verify!`,
                                                icon: "https://cdn-icons-png.flaticon.com/512/3233/3233483.png"
                                            });
-                                           asked.push(m.id);
-                                           break;
                                        }
+                                       asked.push(m.id);
+                                       break; // only ask one at a time
                                    }
                                }
                                sessionStorage.setItem('asked_verifications', JSON.stringify(asked));
