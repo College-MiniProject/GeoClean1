@@ -394,7 +394,7 @@ def complete_mission(mission_id):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
         # Check Daily Complete Cap (Max 3/day)
-        cursor.execute("SELECT COUNT(*) FROM missions WHERE accepted_by_list LIKE %s AND status = 'completed' AND completed_at >= CURRENT_DATE", (f'%{email}%',))
+        cursor.execute("SELECT COUNT(*) FROM missions WHERE accepted_by_list LIKE %s AND status IN ('completed','pending_completion') AND completed_at >= CURRENT_DATE", (f'%{email}%',))
         daily_completes = cursor.fetchone()[0]
         if daily_completes >= 3:
             return jsonify({"error": "Daily complete limit reached. You can only complete 3 missions per day."}), 429
@@ -412,6 +412,9 @@ def complete_mission(mission_id):
         if mission['status'] == 'completed':
             return jsonify({"error": "Mission already completed."}), 400
 
+        if mission['status'] == 'pending_completion':
+            return jsonify({"error": "Completion proof already submitted and is under admin review."}), 400
+
         # Distance Validation Check
         if req_lat is not None and req_lng is not None:
             if mission['latitude'] is not None and mission['longitude'] is not None:
@@ -421,31 +424,19 @@ def complete_mission(mission_id):
 
         filename = save_base64_image(after_img_b64)
 
+        # Set to pending_completion — admin must approve before points are credited
         cursor.execute(
             """
-            UPDATE missions SET status = 'completed', after_image = %s, completed_at = CURRENT_TIMESTAMP
-            WHERE id = %s RETURNING reward, creator_email
+            UPDATE missions SET status = 'pending_completion', after_image = %s, 
+            completed_at = CURRENT_TIMESTAMP, completion_status = 'pending',
+            completion_admin_note = NULL
+            WHERE id = %s
             """,
             (filename, mission_id)
         )
-        result = cursor.fetchone()
-        if not result:
-            return jsonify({"error": "Failed to complete mission."}), 400
-        
-        reward = result['reward']
-        creator_email = result['creator_email']
-        
-        # Give reward to ALL accepted users (split or full based on your preference)
-        reward_per_person = reward  # Full reward to the completer
-        if creator_email == email:
-            cursor.execute("UPDATE users SET points = COALESCE(points, 0) + %s WHERE email = %s", (reward_per_person, email))
-            msg = f"Clean-up verified! Earned {reward_per_person} Points (Self-Report)"
-        else:
-            cursor.execute("UPDATE users SET geocoins = COALESCE(geocoins, 0) + %s WHERE email = %s", (reward_per_person, email))
-            msg = f"Mission completed! Earned {reward_per_person} GeoCoins"
             
         conn.commit()
-        return jsonify({"message": msg}), 200
+        return jsonify({"message": "Proof submitted successfully! Your submission is under review by an admin. Points will be credited once approved."}), 200
     except Exception as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
@@ -685,6 +676,9 @@ def admin_stats():
         cursor.execute("SELECT COUNT(*) as total FROM missions WHERE verification_status = 'false_report'")
         false_reports = cursor.fetchone()['total']
 
+        cursor.execute("SELECT COUNT(*) as total FROM missions WHERE completion_status = 'pending'")
+        pending_completions = cursor.fetchone()['total']
+
         return jsonify({
             "total_users": total_users,
             "total_missions": total_missions,
@@ -693,6 +687,7 @@ def admin_stats():
             "rejected": rejected,
             "completed": completed,
             "false_reports": false_reports,
+            "pending_completions": pending_completions,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -709,7 +704,11 @@ def admin_get_missions():
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
         if status_filter:
-            cursor.execute("SELECT * FROM missions WHERE verification_status = %s ORDER BY created_at DESC", (status_filter,))
+            # Check if filtering by mission status (e.g. pending_completion) or verification_status
+            if status_filter in ('open', 'accepted', 'completed', 'pending_completion', 'hidden'):
+                cursor.execute("SELECT * FROM missions WHERE status = %s ORDER BY created_at DESC", (status_filter,))
+            else:
+                cursor.execute("SELECT * FROM missions WHERE verification_status = %s ORDER BY created_at DESC", (status_filter,))
         else:
             cursor.execute("SELECT * FROM missions ORDER BY created_at DESC")
         import json as _json
@@ -771,6 +770,95 @@ def admin_reject_mission(mission_id):
             return jsonify({"error": "Mission not found"}), 404
         conn.commit()
         return jsonify({"message": f"Mission #{mission_id} rejected"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/missions/<int:mission_id>/approve_completion", methods=["POST"])
+def admin_approve_completion(mission_id):
+    """Admin approves a mission completion — credits points/GeoCoins to the user."""
+    import json as _json
+    data = request.json or {}
+    admin_note = data.get("note", "")
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cursor.execute("SELECT * FROM missions WHERE id = %s", (mission_id,))
+        mission = cursor.fetchone()
+        if not mission:
+            return jsonify({"error": "Mission not found"}), 404
+
+        if mission['completion_status'] != 'pending':
+            return jsonify({"error": "This mission is not pending completion review."}), 400
+
+        # Mark as completed and approved
+        cursor.execute(
+            """
+            UPDATE missions SET status = 'completed', completion_status = 'approved',
+            completion_admin_note = %s
+            WHERE id = %s
+            """,
+            (f"Approved. {admin_note}".strip(), mission_id)
+        )
+
+        # Credit reward to the user who completed it
+        reward = mission['reward']
+        creator_email = mission['creator_email']
+        accepted_list = _json.loads(mission['accepted_by_list'] or '[]')
+
+        # Credit the last user in the accepted list (the completer)
+        # For simplicity, credit all accepted users
+        for user_email in accepted_list:
+            if creator_email == user_email:
+                cursor.execute("UPDATE users SET points = COALESCE(points, 0) + %s WHERE email = %s", (reward, user_email))
+            else:
+                cursor.execute("UPDATE users SET geocoins = COALESCE(geocoins, 0) + %s WHERE email = %s", (reward, user_email))
+
+        conn.commit()
+        return jsonify({"message": f"Mission #{mission_id} completion approved. {reward} points/GeoCoins credited to participants."}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/admin/missions/<int:mission_id>/reject_completion", methods=["POST"])
+def admin_reject_completion(mission_id):
+    """Admin rejects a completion proof — reverts mission to accepted so user can resubmit."""
+    data = request.json or {}
+    reason = data.get("reason", "Completion proof rejected by admin.")
+
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cursor.execute("SELECT * FROM missions WHERE id = %s", (mission_id,))
+        mission = cursor.fetchone()
+        if not mission:
+            return jsonify({"error": "Mission not found"}), 404
+
+        if mission['completion_status'] != 'pending':
+            return jsonify({"error": "This mission is not pending completion review."}), 400
+
+        # Revert to accepted status so user can re-upload
+        cursor.execute(
+            """
+            UPDATE missions SET status = 'accepted', completion_status = 'rejected',
+            after_image = NULL, completed_at = NULL,
+            completion_admin_note = %s
+            WHERE id = %s
+            """,
+            (reason, mission_id)
+        )
+
+        conn.commit()
+        return jsonify({"message": f"Mission #{mission_id} completion rejected. User can resubmit."}), 200
     except Exception as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500

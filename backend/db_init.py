@@ -82,7 +82,9 @@ try:
         ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'unverified',
         ADD COLUMN IF NOT EXISTS false_report_count INTEGER DEFAULT 0,
         ADD COLUMN IF NOT EXISTS slots_taken INTEGER DEFAULT 0,
-        ADD COLUMN IF NOT EXISTS accepted_by_list TEXT DEFAULT '[]';
+        ADD COLUMN IF NOT EXISTS accepted_by_list TEXT DEFAULT '[]',
+        ADD COLUMN IF NOT EXISTS completion_status VARCHAR(50),
+        ADD COLUMN IF NOT EXISTS completion_admin_note TEXT;
     """)
 
     # Create admins table

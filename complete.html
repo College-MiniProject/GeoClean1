@@ -91,7 +91,7 @@
 
     <div class="report-container">
       <h1 class="page-title">Upload <span class="gradient-text">Proof</span></h1>
-      <p style="text-align: center; color: var(--text-gray); margin-bottom: 20px;">Take a clear photo of the cleaned area to verify completion.</p>
+      <p style="text-align: center; color: var(--text-gray); margin-bottom: 20px;">Take a clear photo of the cleaned area. An admin will review your proof before points are credited.</p>
 
       <div class="camera-box" id="camera-box">
         <video id="video" autoplay playsinline></video>
@@ -109,7 +109,7 @@
 
       <form id="complete-form" style="margin-top: 20px;">
         <input type="hidden" id="after_image" />
-        <button type="submit" class="submit-btn" id="btn-submit" disabled>Submit Proof & Claim Reward</button>
+        <button type="submit" class="submit-btn" id="btn-submit" disabled>Submit Proof for Review</button>
       </form>
     </div>
 
@@ -248,17 +248,17 @@
           });
           const data = await res.json();
           if(res.ok) {
-            alert(data.message);
+            alert(data.message || "Proof submitted! Awaiting admin approval.");
             window.location.href = "missions.html";
           } else {
             alert(data.error);
             btnSubmit.disabled = false;
-            btnSubmit.innerText = "Submit Proof & Claim Reward";
+            btnSubmit.innerText = "Submit Proof for Review";
           }
         } catch (err) {
           alert('Network error');
           btnSubmit.disabled = false;
-          btnSubmit.innerText = "Submit Proof & Claim Reward";
+          btnSubmit.innerText = "Submit Proof for Review";
         }
       });
     </script>

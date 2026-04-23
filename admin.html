@@ -256,6 +256,53 @@
     .mission-badge.pending { background: rgba(245, 158, 11, 0.8); color: #fff; }
     .mission-badge.verified { background: rgba(16, 185, 129, 0.8); color: #fff; }
     .mission-badge.rejected { background: rgba(239, 68, 68, 0.8); color: #fff; }
+    .mission-badge.pending-completion { background: rgba(139, 92, 246, 0.8); color: #fff; }
+
+    /* Completion review card styles */
+    .compare-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .compare-images .compare-col {
+      position: relative;
+      overflow: hidden;
+      height: 200px;
+    }
+    .compare-images .compare-col img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .mission-card:hover .compare-images .compare-col img {
+      transform: scale(1.05);
+    }
+    .compare-images .compare-label {
+      position: absolute;
+      bottom: 8px; left: 8px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .compare-divider {
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 3px; height: 100%;
+      background: rgba(255,255,255,0.4);
+      z-index: 5;
+    }
+    .btn-approve-comp { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+    .btn-approve-comp:hover { background: #8b5cf6; color: #fff; }
+    .btn-reject-comp { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .btn-reject-comp:hover { background: #ef4444; color: #fff; }
 
     .mission-info { 
       padding: 20px;
@@ -446,6 +493,7 @@
     <div class="tab-container">
       <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('pending')">📋 Pending Review</button>
+        <button class="tab-btn" onclick="switchTab('completions')">📸 Pending Completions</button>
         <button class="tab-btn" onclick="switchTab('all')">📦 All Missions</button>
         <button class="tab-btn" onclick="switchTab('users')">👥 User Directory</button>
       </div>
@@ -524,6 +572,10 @@
             <div class="label" style="color: #f59e0b;">Pending Review</div>
           </div>
           <div class="stat-card">
+            <div class="number">${s.pending_completions || 0}</div>
+            <div class="label" style="color: #8b5cf6;">Pending Completions</div>
+          </div>
+          <div class="stat-card">
             <div class="number">${s.total_missions}</div>
             <div class="label">Total Missions</div>
           </div>
@@ -556,6 +608,7 @@
       document.getElementById('search-input').value = '';
       
       if (tab === 'pending') loadMissions('unverified');
+      else if (tab === 'completions') loadCompletions();
       else if (tab === 'all') loadMissions();
       else if (tab === 'users') loadUsers();
     }
@@ -684,6 +737,105 @@
         loadStats();
         document.getElementById(`mission-${id}`)?.remove();
         currentDataList = currentDataList.filter(m => m.id !== id);
+      } catch(e) { alert('Network error'); }
+    }
+
+    // ===== PENDING COMPLETIONS =====
+    async function loadCompletions() {
+      try {
+        const res = await fetch(`${API}/admin/missions?status=pending_completion`);
+        const data = await res.json();
+        // Filter only missions with completion_status = pending (extra safety)
+        currentDataList = (data.missions || []).filter(m => m.completion_status === 'pending');
+        renderCompletions(currentDataList);
+      } catch(e) {
+        showEmpty('Error loading data', 'Could not connect to the database.', '⚠️');
+      }
+    }
+
+    function renderCompletions(missions) {
+      const content = document.getElementById('tab-content');
+      if (missions.length === 0) {
+        showEmpty('No Pending Completions', 'All completion proofs have been reviewed! 🎉', '✅');
+        return;
+      }
+
+      const html = `<div class="mission-grid">` + missions.map(m => {
+        const beforeUrl = m.before_image ? `${API}/uploads/${m.before_image}` : '';
+        const afterUrl = m.after_image ? `${API}/uploads/${m.after_image}` : '';
+        const accepted = m.accepted_by_list || [];
+        const completedBy = accepted.length > 0 ? accepted.join(', ') : m.accepted_by || 'Unknown';
+
+        return `
+          <div class="mission-card" id="mission-${m.id}">
+            <div class="compare-images">
+              <div class="compare-col">
+                ${beforeUrl ? `<img src="${beforeUrl}" alt="Before">` : '<div style="background:#1e293b;height:100%;display:flex;align-items:center;justify-content:center;color:#64748b;">No Before Image</div>'}
+                <span class="compare-label">Before</span>
+              </div>
+              <div class="compare-col">
+                ${afterUrl ? `<img src="${afterUrl}" alt="After">` : '<div style="background:#1e293b;height:100%;display:flex;align-items:center;justify-content:center;color:#64748b;">No After Image</div>'}
+                <span class="compare-label" style="background:rgba(139,92,246,0.7);">After</span>
+              </div>
+              <div class="compare-divider"></div>
+              <span class="mission-badge pending-completion" style="position:absolute;top:8px;right:8px;z-index:10;">Awaiting Review</span>
+            </div>
+            <div class="mission-info">
+              <h4>#${m.id} — ${m.type}</h4>
+              <div class="mission-meta">
+                <span class="detail"><i>📍</i> ${m.location_text || 'GPS Location Attached'}</span>
+                <span class="detail"><i>👤</i> Reported by: ${m.creator_email}</span>
+                <span class="detail"><i>🧹</i> Cleaned by: ${completedBy}</span>
+                <span class="detail" style="color: var(--neon-green)"><i>🏆</i> ${m.reward} GeoCoins at stake</span>
+                <span class="detail"><i>📅</i> Submitted: ${m.completed_at ? new Date(m.completed_at).toLocaleString() : 'N/A'}</span>
+              </div>
+              <div class="mission-actions">
+                <button class="btn-approve-comp" onclick="approveCompletion(${m.id})">✅ Approve & Credit</button>
+                <button class="btn-reject-comp" onclick="rejectCompletion(${m.id})">❌ Reject</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('') + `</div>`;
+      
+      content.innerHTML = html;
+    }
+
+    async function approveCompletion(id) {
+      if (!confirm(`Approve completion for mission #${id}? This will credit points/GeoCoins to the user(s).`)) return;
+      const note = prompt('Add an optional admin note:') || '';
+      try {
+        const res = await fetch(`${API}/admin/missions/${id}/approve_completion`, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ note })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(data.message);
+        } else {
+          alert(data.error || 'Failed to approve.');
+        }
+        loadStats();
+        loadCompletions();
+      } catch(e) { alert('Network error'); }
+    }
+
+    async function rejectCompletion(id) {
+      const reason = prompt('Rejection reason (will be shown to user):', 'Photo does not clearly show the cleaned area. Please retake and resubmit.');
+      if (!reason) return;
+      try {
+        const res = await fetch(`${API}/admin/missions/${id}/reject_completion`, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ reason })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(data.message);
+        } else {
+          alert(data.error || 'Failed to reject.');
+        }
+        loadStats();
+        loadCompletions();
       } catch(e) { alert('Network error'); }
     }
 

@@ -147,6 +147,11 @@
           // Only show admin-approved missions (or ones user has already accepted)
           allMissions = (data.missions || []).filter(m => {
             if (m.verification_status === 'verified') return true;
+            // Also show pending_completion missions where user is a participant
+            if (m.status === 'pending_completion') {
+              const list = m.accepted_by_list || [];
+              if (list.includes(user)) return true;
+            }
             // Also show unverified missions where user is in accepted list (edge case)
             const list = m.accepted_by_list || [];
             if (list.includes(user)) return true;
@@ -180,7 +185,7 @@
              filtered = allMissions.filter(m => {
                const list = m.accepted_by_list || [];
                const slotsAvailable = (m.people_needed || 1) - (m.slots_taken || 0);
-               return m.status !== 'completed' && !list.includes(user) && slotsAvailable > 0;
+               return m.status !== 'completed' && m.status !== 'pending_completion' && !list.includes(user) && slotsAvailable > 0;
              });
          } else if (currentTab === 'my') {
              if(!user) { alert("Login to see your accepted missions"); return; }
@@ -231,6 +236,10 @@
 
           if (m.status === 'completed') {
             buttonHtml = `<button class="btn-mission w-100" disabled style="background:#555; cursor:not-allowed;">Completed</button>`;
+          } else if (m.status === 'pending_completion' && userAccepted) {
+            buttonHtml = `<button class="btn-mission w-100" disabled style="background: rgba(139,92,246,0.3); border: 1px solid rgba(139,92,246,0.5); cursor:not-allowed; color:#a78bfa;">⏳ Pending Admin Review</button>`;
+          } else if (m.completion_status === 'rejected' && userAccepted) {
+            buttonHtml = `<button class="btn-mission w-100" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color:#f87171;" onclick="window.location.href='complete.html?id=${m.id}'">❌ Rejected — Resubmit Proof</button>`;
           } else if (userAccepted) {
             buttonHtml = `<button class="btn-mission w-100" style="background:var(--neon-green); color:#000;" onclick="window.location.href='complete.html?id=${m.id}'">Complete Mission</button>`;
           } else if (slotsAvailable > 0) {
