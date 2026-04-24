@@ -99,6 +99,7 @@
         
         <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.85rem; text-align: left; line-height: 1.5; margin-bottom: 10px;">
            <p style="margin: 5px 0; display:flex;"><strong>🗣️ Full Address:</strong> <span style="margin-left: 5px;" id="modal-full-address"></span></p>
+           <p style="margin: 5px 0; display:flex;"><strong>📅 Scheduled:</strong> <span style="margin-left: 5px;" id="modal-schedule"></span></p>
            <p style="margin: 5px 0; display:flex;"><strong>🛠️ Equipment:</strong> <span style="margin-left: 5px;" id="modal-equipment"></span></p>
            <p style="margin: 5px 0; display:flex;"><strong>👥 Workers Req:</strong> <span style="margin-left: 5px;" id="modal-people"></span></p>
            <div id="modal-slots-bar" style="margin: 8px 0;">
@@ -281,6 +282,7 @@
         document.getElementById('modal-title').innerText = m.type;
         document.getElementById('modal-location').innerText = `📍 ${m.location_text || 'Coordinates: ' + m.latitude + ',' + m.longitude}`;
         document.getElementById('modal-full-address').innerText = m.full_address || m.location_text || 'Coordinates: ' + m.latitude + ',' + m.longitude;
+        document.getElementById('modal-schedule').innerText = (m.scheduled_date && m.scheduled_time) ? `${m.scheduled_date} at ${m.scheduled_time}` : 'TBD';
         document.getElementById('modal-equipment').innerText = m.equipment_needed || 'General Cleanup Tooling';
         document.getElementById('modal-people').innerText = `${peopleNeeded} Person(s)`;
         document.getElementById('modal-desc').innerText = m.description || 'No additional description provided.';

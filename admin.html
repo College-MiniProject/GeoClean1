@@ -532,6 +532,34 @@
     </div>
   </div>
 
+  <!-- Approve Mission Modal -->
+  <div class="modal-overlay" id="approve-mission-modal">
+    <div class="modal-content">
+      <h3>Approve Mission</h3>
+      <input type="hidden" id="approve-mission-id">
+      <div class="form-group">
+        <label>Required People</label>
+        <input type="number" id="approve-people-needed" min="1" value="1">
+      </div>
+      <div class="form-group">
+        <label>Scheduled Date</label>
+        <input type="date" id="approve-scheduled-date">
+      </div>
+      <div class="form-group">
+        <label>Scheduled Time</label>
+        <input type="time" id="approve-scheduled-time">
+      </div>
+      <div class="form-group">
+        <label>Admin Note (Optional)</label>
+        <input type="text" id="approve-note" placeholder="Any specific instructions...">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="document.getElementById('approve-mission-modal').style.display='none'">Cancel</button>
+        <button class="btn-save" onclick="submitApproveMission()">Approve</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const API = window.location.origin;
     let adminData = null;
@@ -702,14 +730,33 @@
     }
 
     async function approveMission(id) {
-      if (!confirm(`Approve mission #${id}? It will be visible to the public.`)) return;
-      const note = prompt('Add an optional admin note:') || '';
+      document.getElementById('approve-mission-id').value = id;
+      document.getElementById('approve-people-needed').value = 1;
+      document.getElementById('approve-scheduled-date').value = '';
+      document.getElementById('approve-scheduled-time').value = '';
+      document.getElementById('approve-note').value = '';
+      document.getElementById('approve-mission-modal').style.display = 'flex';
+    }
+
+    async function submitApproveMission() {
+      const id = document.getElementById('approve-mission-id').value;
+      const people_needed = document.getElementById('approve-people-needed').value;
+      const scheduled_date = document.getElementById('approve-scheduled-date').value;
+      const scheduled_time = document.getElementById('approve-scheduled-time').value;
+      const note = document.getElementById('approve-note').value;
+
+      if (!scheduled_date || !scheduled_time) {
+        alert("Please assign a scheduled date and time for the cleanup.");
+        return;
+      }
+
       try {
         const res = await fetch(`${API}/admin/missions/${id}/approve`, {
           method: 'POST', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ note })
+          body: JSON.stringify({ note, people_needed, scheduled_date, scheduled_time })
         });
         const data = await res.json();
+        document.getElementById('approve-mission-modal').style.display = 'none';
         loadStats();
         if (currentAdminTab === 'pending') loadMissions('unverified'); else loadMissions();
       } catch(e) { alert('Network error'); }

@@ -415,6 +415,11 @@ def complete_mission(mission_id):
         if email not in accepted_list:
             return jsonify({"error": "You have not accepted this mission. Accept it first."}), 400
 
+        slots_taken = mission['slots_taken'] or 0
+        people_needed = mission['people_needed'] or 1
+        if slots_taken < people_needed:
+            return jsonify({"error": f"Cannot submit proof yet. {people_needed - slots_taken} more person(s) needed to join."}), 400
+
         if mission['status'] == 'completed':
             return jsonify({"error": "Mission already completed."}), 400
 
@@ -764,14 +769,23 @@ def admin_approve_mission(mission_id):
     """Admin approves a mission — marks it as verified and visible."""
     data = request.json or {}
     admin_note = data.get("note", "")
+    people_needed = data.get("people_needed")
+    scheduled_date = data.get("scheduled_date")
+    scheduled_time = data.get("scheduled_time")
 
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute(
-            "UPDATE missions SET verification_status = 'verified', ai_analysis = %s WHERE id = %s",
-            (f"Admin approved. {admin_note}".strip(), mission_id)
-        )
+        if people_needed is not None and scheduled_date and scheduled_time:
+            cursor.execute(
+                "UPDATE missions SET verification_status = 'verified', ai_analysis = %s, people_needed = %s, scheduled_date = %s, scheduled_time = %s WHERE id = %s",
+                (f"Admin approved. {admin_note}".strip(), int(people_needed), scheduled_date, scheduled_time, mission_id)
+            )
+        else:
+            cursor.execute(
+                "UPDATE missions SET verification_status = 'verified', ai_analysis = %s WHERE id = %s",
+                (f"Admin approved. {admin_note}".strip(), mission_id)
+            )
         if cursor.rowcount == 0:
             return jsonify({"error": "Mission not found"}), 404
         conn.commit()
