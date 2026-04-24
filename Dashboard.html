@@ -209,42 +209,68 @@
           searchResult.style.marginTop = "15px";
           searchResult.style.background = "rgba(0,0,0,0.3)";
 
-          if (query.includes("battery") || query.includes("e-waste") || query.includes("electronic") || query.includes("bulb") || query.includes("tube")) {
-            searchResult.innerHTML = "<strong>🛑 E-Waste Hazard:</strong> Batteries & electronics leak toxic acid. Nearest drop-off: E-Waste Center.";
-            searchResult.style.borderLeftColor = "#ffaa00";
-            searchResult.style.color = "#ffaa00";
-          } else if (query.includes("syringe") || query.includes("medical") || query.includes("medicine") || query.includes("pill")) {
-            searchResult.innerHTML = "<strong>☠️ Bio-Hazard:</strong> MUST be sealed in puncture-proof container and taken to a medical waste facility.";
-            searchResult.style.borderLeftColor = "#ff0055";
-            searchResult.style.color = "#ff0055";
-          } else if (query.includes("plastic") || query.includes("bottle") || query.includes("wrapper")) {
-            searchResult.innerHTML = "<strong>♻️ Recyclable Plastic:</strong> Rinse if needed and place in DRY WASTE (Blue) bin.";
-            searchResult.style.borderLeftColor = "#0ea5e9";
-            searchResult.style.color = "#0ea5e9";
-          } else if (query.includes("paper") || query.includes("cardboard") || query.includes("box") || query.includes("newspaper")) {
-            searchResult.innerHTML = "<strong>📦 Paper/Cardboard:</strong> Flatten and place in DRY WASTE (Blue) bin. Keep it dry!";
-            searchResult.style.borderLeftColor = "#a78bfa";
-            searchResult.style.color = "#a78bfa";
-          } else if (query.includes("glass") || query.includes("metal") || query.includes("can")) {
-            searchResult.innerHTML = "<strong>🥫 Glass & Metal:</strong> Rinse thoroughly and place in DRY WASTE (Blue) bin. Wrap broken glass securely!";
-            searchResult.style.borderLeftColor = "#94a3b8";
-            searchResult.style.color = "#94a3b8";
-          } else if (query.includes("food") || query.includes("vegetable") || query.includes("fruit") || query.includes("organic") || query.includes("meat")) {
-            searchResult.innerHTML = "<strong>🍎 Organic Waste:</strong> Compost it or place in WET WASTE (Green) bin.";
-            searchResult.style.borderLeftColor = "var(--primary-green)";
-            searchResult.style.color = "var(--primary-green)";
-          } else if (query.includes("cloth") || query.includes("textile") || query.includes("fabric") || query.includes("shoe")) {
-            searchResult.innerHTML = "<strong>👕 Textiles:</strong> Donate if in good condition. Otherwise, drop off at a textile recycling center.";
-            searchResult.style.borderLeftColor = "#fbbf24";
-            searchResult.style.color = "#fbbf24";
-          } else if (query === "") {
+          const eWaste = ["battery", "e-waste", "electronic", "bulb", "tube", "phone", "laptop", "computer", "wire", "cable", "appliance", "charger", "tv", "monitor", "keyboard", "mouse", "printer", "microwave", "fridge"];
+          const bioHazard = ["syringe", "medical", "medicine", "pill", "drug", "needle", "bandage", "blood", "diaper", "sanitary", "pad", "tampon"];
+          const hazardous = ["chemical", "paint", "solvent", "acid", "pesticide", "cleaner", "bleach", "aerosol", "oil", "fuel", "gas", "spray", "glue", "adhesive", "thinner"];
+          const plastic = ["plastic", "bottle", "wrapper", "container", "bag", "cup", "tub", "jug", "packaging"];
+          const paper = ["paper", "cardboard", "box", "newspaper", "magazine", "book", "mail", "flyer", "receipt", "carton"];
+          const glassMetal = ["glass", "metal", "can", "jar", "foil", "aluminum", "tin", "steel", "iron", "copper", "brass"];
+          const organic = ["food", "vegetable", "fruit", "organic", "meat", "bone", "leaf", "grass", "plant", "flower", "branch", "wood", "shell", "peel", "scrap", "tea", "coffee"];
+          const textile = ["cloth", "textile", "fabric", "shoe", "shirt", "pant", "dress", "towel", "blanket", "sheet", "rug", "carpet", "curtain"];
+          const bulky = ["furniture", "chair", "table", "sofa", "couch", "mattress", "bed", "desk", "cabinet", "wardrobe"];
+          const general = ["styrofoam", "rubber", "foam", "leather", "pen", "pencil", "sponge", "ceramic", "porcelain", "general", "dry", "dust"];
+
+          if (query === "") {
             searchResult.innerHTML = "Enter an item to search.";
             searchResult.style.borderLeftColor = "var(--text-gray)";
             searchResult.style.color = "var(--text-gray)";
-          } else {
-            searchResult.innerHTML = "<strong>🗑️ General Waste:</strong> Separate into DRY WASTE (Blue) bin or check local guidelines.";
+            return;
+          }
+
+          if (eWaste.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>🛑 E-Waste Hazard:</strong> Batteries & electronics leak toxic acid. Nearest drop-off: E-Waste Center.";
+            searchResult.style.borderLeftColor = "#ffaa00";
+            searchResult.style.color = "#ffaa00";
+          } else if (bioHazard.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>☠️ Bio-Hazard:</strong> MUST be sealed in puncture-proof container and taken to a medical/bio-waste facility.";
+            searchResult.style.borderLeftColor = "#ff0055";
+            searchResult.style.color = "#ff0055";
+          } else if (hazardous.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>⚠️ Hazardous Waste:</strong> Do NOT mix or pour down the drain! Take to a hazardous waste disposal facility.";
+            searchResult.style.borderLeftColor = "#ef4444";
+            searchResult.style.color = "#ef4444";
+          } else if (plastic.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>♻️ Recyclable Plastic:</strong> Rinse if needed and place in DRY WASTE (Blue) bin.";
+            searchResult.style.borderLeftColor = "#0ea5e9";
+            searchResult.style.color = "#0ea5e9";
+          } else if (paper.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>📦 Paper/Cardboard:</strong> Flatten and place in DRY WASTE (Blue) bin. Keep it dry!";
+            searchResult.style.borderLeftColor = "#a78bfa";
+            searchResult.style.color = "#a78bfa";
+          } else if (glassMetal.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>🥫 Glass & Metal:</strong> Rinse thoroughly and place in DRY WASTE (Blue) bin. Wrap broken glass securely!";
+            searchResult.style.borderLeftColor = "#94a3b8";
+            searchResult.style.color = "#94a3b8";
+          } else if (organic.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>🍎 Organic Waste:</strong> Compost it or place in WET WASTE (Green) bin.";
+            searchResult.style.borderLeftColor = "var(--primary-green)";
+            searchResult.style.color = "var(--primary-green)";
+          } else if (textile.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>👕 Textiles:</strong> Donate if in good condition. Otherwise, drop off at a textile recycling center.";
+            searchResult.style.borderLeftColor = "#fbbf24";
+            searchResult.style.color = "#fbbf24";
+          } else if (bulky.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>🛋️ Bulky Waste:</strong> Do not leave on the street. Schedule a bulky waste pickup with your municipality.";
+            searchResult.style.borderLeftColor = "#d946ef";
+            searchResult.style.color = "#d946ef";
+          } else if (general.some(w => query.includes(w))) {
+            searchResult.innerHTML = "<strong>🗑️ General Dry Waste:</strong> Separate into DRY WASTE (Blue) bin.";
             searchResult.style.borderLeftColor = "var(--text-gray)";
             searchResult.style.color = "var(--text-gray)";
+          } else {
+            searchResult.innerHTML = "<strong>❓ Item Not Recognized:</strong> We couldn't classify this item. Try a more specific keyword, or default to checking local municipal guidelines.";
+            searchResult.style.borderLeftColor = "#64748b";
+            searchResult.style.color = "#94a3b8";
           }
         });
 

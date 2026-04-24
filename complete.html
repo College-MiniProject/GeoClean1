@@ -234,6 +234,11 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        if (gpsLat === null || gpsLng === null) {
+          alert("Location is required to complete this mission. Please enable location permissions.");
+          return;
+        }
+        
         btnSubmit.disabled = true;
         btnSubmit.innerText = "Uploading...";
 

@@ -242,6 +242,10 @@
       setInterval(updateOverlay, 1000);
 
       btnStartCam.addEventListener('click', async () => {
+        if (gpsLat === null || gpsLng === null) {
+          alert("Location is required to report garbage. Please enable location permissions in your browser.");
+          return;
+        }
         try {
           stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
           video.srcObject = stream;
@@ -299,6 +303,11 @@
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        if (gpsLat === null || gpsLng === null) {
+          alert("Location is required to report garbage. Please enable location permissions.");
+          return;
+        }
         
         const payload = {
           creator_email: user,
