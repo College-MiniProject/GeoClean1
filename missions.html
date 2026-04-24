@@ -109,7 +109,6 @@
                <div id="modal-slots-fill" style="height: 100%; background: var(--neon-green); border-radius: 4px; transition: width 0.3s;"></div>
              </div>
            </div>
-           <p style="margin: 5px 0; display:flex;"><strong>🤖 AI Scanner:</strong> <span style="margin-left: 5px; color:var(--text-gray);" id="modal-ai"></span></p>
         </div>
         
         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
@@ -284,7 +283,6 @@
         document.getElementById('modal-full-address').innerText = m.full_address || m.location_text || 'Coordinates: ' + m.latitude + ',' + m.longitude;
         document.getElementById('modal-equipment').innerText = m.equipment_needed || 'General Cleanup Tooling';
         document.getElementById('modal-people').innerText = `${peopleNeeded} Person(s)`;
-        document.getElementById('modal-ai').innerText = m.ai_analysis || 'No AI scan available for this legacy report.';
         document.getElementById('modal-desc').innerText = m.description || 'No additional description provided.';
         document.getElementById('modal-reward').innerText = m.reward;
 

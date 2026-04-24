@@ -306,6 +306,12 @@ def get_missions():
                 m['accepted_by_list'] = []
             m['slots_taken'] = m.get('slots_taken') or 0
             m['slots_available'] = (m.get('people_needed') or 1) - m['slots_taken']
+            
+            # Format dates to avoid GMT offset issues
+            for key in ['created_at', 'accepted_at', 'completed_at']:
+                if m.get(key):
+                    m[key] = m[key].strftime('%Y-%m-%d %H:%M:%S')
+                    
             missions.append(m)
         return jsonify({"missions": missions})
     except Exception as e:
@@ -738,6 +744,12 @@ def admin_get_missions():
                 m['accepted_by_list'] = _json.loads(m.get('accepted_by_list') or '[]')
             except Exception:
                 m['accepted_by_list'] = []
+                
+            # Format dates to avoid GMT offset issues
+            for key in ['created_at', 'accepted_at', 'completed_at']:
+                if m.get(key):
+                    m[key] = m[key].strftime('%Y-%m-%d %H:%M:%S')
+                    
             missions.append(m)
         return jsonify({"missions": missions})
     except Exception as e:
